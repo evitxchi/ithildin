@@ -1,4 +1,72 @@
+'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+
+function BinaryLogo() {
+  const [art, setArt] = useState('')
+
+  useEffect(() => {
+    const cols = 200
+    const rows = 18
+    const cellW = 8
+    const cellH = 13
+
+    const canvas = document.createElement('canvas')
+    canvas.width = cols * cellW
+    canvas.height = rows * cellH
+    const ctx = canvas.getContext('2d')!
+
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = '#fff'
+    ctx.font = `bold ${Math.floor(rows * cellH * 0.84)}px Arial`
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'center'
+    ctx.fillText('ITHILDIN', canvas.width / 2, canvas.height / 2)
+
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const lines: string[] = []
+
+    for (let r = 0; r < rows; r++) {
+      let line = ''
+      for (let c = 0; c < cols; c++) {
+        const px = Math.floor(c * cellW + cellW / 2)
+        const py = Math.floor(r * cellH + cellH / 2)
+        const idx = (py * canvas.width + px) * 4
+        const bright = data[idx]
+        if (bright > 80) {
+          line += Math.random() > 0.5 ? '1' : '0'
+        } else if (Math.random() < 0.1) {
+          line += Math.random() > 0.5 ? '1' : '0'
+        } else {
+          line += '\u00a0'
+        }
+      }
+      lines.push(line)
+    }
+
+    setArt(lines.join('\n'))
+  }, [])
+
+  if (!art) return null
+
+  return (
+    <pre style={{
+      fontFamily: '"Courier New", Courier, monospace',
+      fontSize: '0.38rem',
+      lineHeight: 1.35,
+      color: 'rgba(255,255,255,0.13)',
+      letterSpacing: '0.03em',
+      whiteSpace: 'pre',
+      overflow: 'hidden',
+      padding: '60px 52px 48px',
+      userSelect: 'none',
+      width: '100%',
+    }}>
+      {art}
+    </pre>
+  )
+}
 
 const BADGES = [
   {
@@ -124,6 +192,8 @@ export default function Footer() {
           ))}
         </div>
       </div>
+
+      <BinaryLogo />
 
       {/* Links */}
       <div style={{
