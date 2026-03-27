@@ -103,13 +103,13 @@ export default function Footer() {
               fontSize: '0.62rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: 'rgba(130,130,130,0.5)',
+              color: 'rgba(180,180,180,0.8)',
               fontWeight: 300,
             }}>{b.name}</span>
             <span style={{
               fontFamily: 'var(--font-sans)',
               fontSize: '0.58rem',
-              color: 'rgba(80,80,80,0.6)',
+              color: 'rgba(140,140,140,0.8)',
               letterSpacing: '0.04em',
               fontWeight: 300,
             }}>Details ↗</span>

@@ -43,7 +43,7 @@ export default function Nav() {
 
         <div style={{ width: 1, height: 13, background: 'rgba(255,255,255,0.08)' }} />
 
-        <Link href="#" className="nav-link" style={{ color: 'rgba(255,255,255,0.28)' }}>
+        <Link href="#" className="nav-link" style={{ color: 'rgba(255,255,255,0.5)' }}>
           Login
         </Link>
       </div>
