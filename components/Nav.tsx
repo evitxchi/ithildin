@@ -21,7 +21,7 @@ export default function Nav() {
       transition: 'all 0.35s ease',
     }}>
       <Link href="/" style={{
-        display: 'flex', alignItems: 'center', gap: 10,
+        display: 'flex', alignItems: 'center', gap: 4,
         fontFamily: 'var(--font-serif)',
         fontSize: '1.25rem',
         fontWeight: 400,
@@ -29,7 +29,7 @@ export default function Nav() {
         textDecoration: 'none',
         letterSpacing: '0.01em',
       }}>
-        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 28, width: 'auto' }} />
+        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 56, width: 'auto', marginRight: -4 }} />
         Ithildin
       </Link>
 
