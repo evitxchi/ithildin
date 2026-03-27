@@ -100,7 +100,7 @@ export default function Privacy() {
 
       {/* Standards */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
-        <div className="reveal" style={{ marginBottom: 64 }}>
+        <div className="" style={{ marginBottom: 64 }}>
           <p className="label" style={{ marginBottom: 16 }}>Compliance Standards</p>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
@@ -110,7 +110,7 @@ export default function Privacy() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {STANDARDS.map((s, i) => (
-            <div key={s.label} className="reveal" style={{
+            <div key={s.label} className="" style={{
               padding: '48px 0',
               borderTop: '1px solid rgba(255,255,255,0.06)',
               borderBottom: i === STANDARDS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
@@ -158,7 +158,7 @@ export default function Privacy() {
 
       {/* Data Practices */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
-        <div className="reveal" style={{ marginBottom: 56 }}>
+        <div className="" style={{ marginBottom: 56 }}>
           <p className="label" style={{ marginBottom: 16 }}>Data Practices</p>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
@@ -171,7 +171,7 @@ export default function Privacy() {
           borderLeft: '1px solid rgba(255,255,255,0.06)',
         }}>
           {PRACTICES.map((p, i) => (
-            <div key={p.title} className="reveal" style={{
+            <div key={p.title} className="" style={{
               padding: '32px 28px',
               borderRight: '1px solid rgba(255,255,255,0.06)',
               borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -194,7 +194,7 @@ export default function Privacy() {
 
       {/* Contact */}
       <section style={{ padding: '80px 52px 120px', textAlign: 'center' }}>
-        <div className="reveal" style={{ maxWidth: 520, margin: '0 auto' }}>
+        <div className="" style={{ maxWidth: 520, margin: '0 auto' }}>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.6rem)',
             fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 18,
