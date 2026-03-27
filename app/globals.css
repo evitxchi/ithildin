@@ -211,6 +211,28 @@ h1, h2, h3, h4 {
   border-bottom: 1px solid var(--border);
 }
 
+@keyframes logoGleam {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+.logo-gleam {
+  background: linear-gradient(
+    90deg,
+    #e8e8e8 0%,
+    #e8e8e8 30%,
+    #c8a96e 44%,
+    #f5dfa0 50%,
+    #c8a96e 56%,
+    #e8e8e8 70%,
+    #e8e8e8 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: logoGleam 3.5s linear infinite;
+}
+
 @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
 @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeUpFast { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }

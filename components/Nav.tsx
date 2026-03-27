@@ -20,11 +20,10 @@ export default function Nav() {
       backdropFilter: scrolled ? 'blur(16px)' : 'none',
       transition: 'all 0.35s ease',
     }}>
-      <Link href="/" style={{
+      <Link href="/" className="logo-gleam" style={{
         fontFamily: 'var(--font-serif)',
         fontSize: '1.25rem',
         fontWeight: 400,
-        color: '#e8e8e8',
         textDecoration: 'none',
         letterSpacing: '0.01em',
       }}>
