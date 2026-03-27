@@ -3,6 +3,7 @@ import Link from 'next/link'
 const BADGES = [
   {
     name: 'SOC 2 II',
+    href: 'https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2',
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
         <path d="M17 3 L30 9 V20 C30 28 24 33 17 35 C10 33 4 28 4 20 V9 Z"
@@ -14,6 +15,7 @@ const BADGES = [
   },
   {
     name: 'CCPA',
+    href: 'https://oag.ca.gov/privacy/ccpa',
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
         <circle cx="17" cy="17" r="12" stroke="rgba(130,130,130,0.4)" strokeWidth="1" fill="none"/>
@@ -32,6 +34,7 @@ const BADGES = [
   },
   {
     name: 'ISO 27001',
+    href: 'https://www.iso.org/standard/27001',
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
         <circle cx="17" cy="17" r="12" stroke="rgba(130,130,130,0.4)" strokeWidth="1" fill="none"/>
@@ -44,6 +47,7 @@ const BADGES = [
   },
   {
     name: 'GDPR',
+    href: 'https://www.iso.org/standard/27001',
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
         <circle cx="17" cy="17" r="12" stroke="rgba(130,130,130,0.4)" strokeWidth="1" fill="none"/>
@@ -76,7 +80,7 @@ export default function Footer() {
         borderLeft: '1px solid rgba(255,255,255,0.06)',
       }}>
         {BADGES.map(b => (
-          <div key={b.name} style={{
+          <a key={b.name} href={b.href} target="_blank" rel="noopener noreferrer" style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -86,8 +90,9 @@ export default function Footer() {
             borderRight: '1px solid rgba(255,255,255,0.06)',
             borderBottom: '1px solid rgba(255,255,255,0.06)',
             background: 'var(--bg-card)',
-            cursor: 'default',
+            cursor: 'pointer',
             transition: 'background 0.2s',
+            textDecoration: 'none',
           }}
             onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#101010'}
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'}
@@ -108,7 +113,7 @@ export default function Footer() {
               letterSpacing: '0.04em',
               fontWeight: 300,
             }}>Details ↗</span>
-          </div>
+          </a>
         ))}
       </div>
 

@@ -396,6 +396,80 @@ function FeatSection({
   )
 }
 
+
+/* ── BEAD WAVE ── */
+function BeadWave() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // non-null aliases for use inside closures
+    const cvs = canvas as HTMLCanvasElement
+    const c2d = ctx as CanvasRenderingContext2D
+
+    const ROWS = 22, COLS = 30
+    let t = 0, animId: number, W = 0, H = 0
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1
+      const rect = cvs.getBoundingClientRect()
+      W = rect.width; H = rect.height
+      cvs.width = W * dpr; cvs.height = H * dpr
+      c2d.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    resize()
+    window.addEventListener('resize', resize)
+
+    function draw() {
+      c2d.clearRect(0, 0, W, H)
+      const cx = W / 2
+
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const nx = col / (COLS - 1) - 0.5
+          const ny = row / (ROWS - 1)
+
+          const p = 0.18 + ny * 0.82
+
+          const wave =
+            Math.sin(nx * 5.5 + ny * 4.2 - t * 1.6) * 0.42 +
+            Math.sin(nx * 2.8 - ny * 3.1 - t * 0.9) * 0.18
+
+          const sx = cx + nx * W * 1.05 * p
+          const sy = H * 0.06 + ny * H * 0.88 - wave * H * 0.13 * p
+
+          const norm = Math.max(0, Math.min(1, (wave + 0.6) / 1.2))
+          const alpha = 0.05 + norm * 0.62
+          const r = Math.max(0.4, (0.7 + norm * 3.2) * p)
+
+          c2d.beginPath()
+          c2d.arc(sx, sy, r, 0, Math.PI * 2)
+          c2d.fillStyle = `rgba(255,255,255,${Math.min(0.78, alpha).toFixed(2)})`
+          c2d.fill()
+        }
+      }
+
+      t += 0.012
+      animId = requestAnimationFrame(draw)
+    }
+
+    animId = requestAnimationFrame(draw)
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize) }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}
+    />
+  )
+}
+
 /* ── EMAIL SUBMIT ── */
 function EmailCapture() {
   const [submitted, setSubmitted] = useState(false)
@@ -439,13 +513,14 @@ export default function Home() {
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
         padding: '0 52px', position: 'relative', overflow: 'hidden',
       }}>
+        <BeadWave />
         <div style={{
           position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -55%)',
           width: 600, height: 400,
-          background: 'radial-gradient(ellipse, rgba(200,200,200,0.022) 0%, transparent 65%)',
-          pointerEvents: 'none',
+          background: 'radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 70%)',
+          pointerEvents: 'none', zIndex: 2,
         }}/>
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 3, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <p className="label" style={{ marginBottom: 28 }}>AI Deposition Intelligence</p>
           <h1 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.2rem, 7.5vw, 6rem)',
