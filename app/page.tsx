@@ -525,7 +525,7 @@ function EmailCapture() {
         onChange={e => setVal(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && submit()}
       />
-      <button className="email-submit" onClick={submit}>Request Access →</button>
+      <button className="email-submit" onClick={submit}>Join Waitlist →</button>
     </div>
   )
 }
