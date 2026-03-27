@@ -109,7 +109,7 @@ h1, h2, h3, h4 {
   font-weight: 300;
   color: var(--silver);
 }
-.email-input::placeholder { color: #242424; }
+.email-input::placeholder { color: rgba(255,255,255,0.35); }
 .email-submit {
   padding: 9px 18px;
   border-radius: 100px;
