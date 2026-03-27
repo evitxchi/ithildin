@@ -13,7 +13,7 @@ export default function Nav() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      padding: '20px 52px',
+      padding: '20px 20px',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       background: scrolled ? 'rgba(8,8,8,0.92)' : 'transparent',
       borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.06)' : 'transparent'}`,
@@ -21,7 +21,7 @@ export default function Nav() {
       transition: 'all 0.35s ease',
     }}>
       <Link href="/" style={{
-        display: 'flex', alignItems: 'center', gap: 4,
+        display: 'flex', alignItems: 'center', gap: 2,
         fontFamily: 'var(--font-serif)',
         fontSize: '1.25rem',
         fontWeight: 400,
@@ -29,15 +29,15 @@ export default function Nav() {
         textDecoration: 'none',
         letterSpacing: '0.01em',
       }}>
-        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 56, width: 'auto', marginRight: -4 }} />
+        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 56, width: 'auto' }} />
         Ithildin
       </Link>
 
       {/* Center links */}
-      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 36 }}>
+      <div className="nav-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 36 }}>
         {[
           { label: 'Product', href: '/product' },
-          { label: 'Pricing', href: '/pricing' },
+          { label: 'Privacy', href: '/privacy' },
         ].map(item => (
           <Link key={item.label} href={item.href} className="nav-link">
             {item.label}

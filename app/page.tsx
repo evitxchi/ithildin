@@ -593,7 +593,7 @@ export default function Home() {
             lineHeight: 1.05, marginBottom: 48,
           }}>Intelligence at every stage</h2>
         </div>
-        <div style={{
+        <div className="stages-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(3,1fr)',
           borderTop: '1px solid rgba(255,255,255,0.06)',
           borderLeft: '1px solid rgba(255,255,255,0.06)',

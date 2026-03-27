@@ -203,7 +203,7 @@ export default function Footer() {
       <BinaryLogo />
 
       {/* Links */}
-      <div style={{
+      <div className="footer-links" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',

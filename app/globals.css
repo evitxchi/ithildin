@@ -241,4 +241,23 @@ h1, h2, h3, h4 {
 
 @media (max-width: 768px) {
   .feat-section { grid-template-columns: 1fr; }
+  .stages-grid { grid-template-columns: 1fr !important; }
+  .footer-links { flex-direction: column !important; gap: 40px !important; }
+  .nav-center { display: none !important; }
+  .binary-logo { display: none; }
+  .feat-vis { min-height: 220px; }
+
+  /* Section padding */
+  section { padding-left: 24px !important; padding-right: 24px !important; }
+
+  /* Privacy page standard grid */
+  .privacy-standard-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .privacy-practices-grid { grid-template-columns: 1fr !important; }
+
+  /* Hero */
+  .hero-section { padding-top: 120px !important; padding-bottom: 48px !important; }
+
+  /* Footer */
+  footer { padding: 48px 24px 32px !important; }
+  .footer-bottom { flex-direction: column !important; gap: 8px !important; text-align: center; }
 }
