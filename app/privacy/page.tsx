@@ -1,5 +1,49 @@
+'use client'
+import { useEffect, useRef, useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+
+/* ── LOOPING TYPEWRITER ── */
+function useTypewriterLoop(phrases: string[]) {
+  const [text, setText] = useState('')
+  useEffect(() => {
+    let pi = 0, ci = 0, deleting = false, paused = false
+    let t: NodeJS.Timeout
+
+    function step() {
+      const phrase = phrases[pi]
+      if (paused) { paused = false; deleting = true; t = setTimeout(step, 100); return }
+      if (!deleting) {
+        if (ci < phrase.length) {
+          setText(phrase.slice(0, ++ci))
+          const speed = 65 + Math.random() * 45 + (phrase[ci - 1] === ' ' ? 25 : 0)
+          t = setTimeout(step, speed)
+        } else {
+          paused = true; t = setTimeout(step, 1600)
+        }
+      } else {
+        if (ci > 0) { setText(phrase.slice(0, --ci)); t = setTimeout(step, 25 + Math.random() * 15) }
+        else { deleting = false; pi = (pi + 1) % phrases.length; t = setTimeout(step, 200) }
+      }
+    }
+    t = setTimeout(step, 500)
+    return () => clearTimeout(t)
+  }, [])
+  return text
+}
+
+/* ── SCROLL REVEAL ── */
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal')
+    const io = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
+      { threshold: 0.08 }
+    )
+    els.forEach(el => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+}
 
 const STANDARDS = [
   {
@@ -74,6 +118,10 @@ const PRACTICES = [
 ]
 
 export default function Privacy() {
+  useReveal()
+  const hero = useTypewriterLoop(['Your data, protected.', 'Your clients, protected.', 'Your cases, protected.'])
+  const frameworks = useTypewriterLoop(['Four frameworks. One commitment.'])
+
   return (
     <main style={{ background: 'var(--bg)' }}>
       <Nav />
@@ -84,11 +132,11 @@ export default function Privacy() {
         <h1 style={{
           fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.8rem, 6vw, 5rem)',
           fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em',
-          lineHeight: 1.0, marginBottom: 28,
+          lineHeight: 1.0, marginBottom: 28, minHeight: '1.05em',
         }}>
-          Your data,<br />protected.
+          {hero}<span className="cursor-blink" />
         </h1>
-        <p style={{
+        <p className="reveal" style={{
           fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
           color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, maxWidth: 520,
         }}>
@@ -100,21 +148,24 @@ export default function Privacy() {
 
       {/* Standards */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
-        <div className="" style={{ marginBottom: 64 }}>
-          <p className="label" style={{ marginBottom: 16 }}>Compliance Standards</p>
+        <div style={{ marginBottom: 64 }}>
+          <p className="label reveal" style={{ marginBottom: 16 }}>Compliance Standards</p>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
-            fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05,
-          }}>Four frameworks. One commitment.</h2>
+            fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em',
+            lineHeight: 1.05, minHeight: '1.1em',
+          }}>
+            {frameworks}<span className="cursor-blink" />
+          </h2>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {STANDARDS.map((s, i) => (
-            <div key={s.label} className="" style={{
+            <div key={s.label} className="reveal" style={{
               padding: '48px 0',
               borderTop: '1px solid rgba(255,255,255,0.06)',
               borderBottom: i === STANDARDS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-              transitionDelay: `${i * 0.08}s`,
+              transitionDelay: `${i * 0.1}s`,
             }}>
               <div className="privacy-standard-grid" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 48 }}>
                 <div>
@@ -158,7 +209,7 @@ export default function Privacy() {
 
       {/* Data Practices */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
-        <div className="" style={{ marginBottom: 56 }}>
+        <div className="reveal" style={{ marginBottom: 56 }}>
           <p className="label" style={{ marginBottom: 16 }}>Data Practices</p>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
@@ -171,11 +222,11 @@ export default function Privacy() {
           borderLeft: '1px solid rgba(255,255,255,0.06)',
         }}>
           {PRACTICES.map((p, i) => (
-            <div key={p.title} className="" style={{
+            <div key={p.title} className="reveal" style={{
               padding: '32px 28px',
               borderRight: '1px solid rgba(255,255,255,0.06)',
               borderBottom: '1px solid rgba(255,255,255,0.06)',
-              transitionDelay: `${i * 0.06}s`,
+              transitionDelay: `${i * 0.08}s`,
             }}>
               <h4 style={{
                 fontFamily: 'var(--font-serif)', fontSize: '1.05rem',
@@ -194,7 +245,7 @@ export default function Privacy() {
 
       {/* Contact */}
       <section style={{ padding: '80px 52px 120px', textAlign: 'center' }}>
-        <div className="" style={{ maxWidth: 520, margin: '0 auto' }}>
+        <div className="reveal" style={{ maxWidth: 520, margin: '0 auto' }}>
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3vw, 2.6rem)',
             fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 18,
