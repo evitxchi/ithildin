@@ -31,7 +31,8 @@ export default function Nav() {
         Ithildin
       </Link>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+      {/* Center links */}
+      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 36 }}>
         {[
           { label: 'Product', href: '/product' },
           { label: 'Pricing', href: '/pricing' },
@@ -40,13 +41,12 @@ export default function Nav() {
             {item.label}
           </Link>
         ))}
-
-        <div style={{ width: 1, height: 13, background: 'rgba(255,255,255,0.08)' }} />
-
-        <Link href="#" className="nav-link" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          Login
-        </Link>
       </div>
+
+      {/* Right: Login */}
+      <Link href="#" className="nav-link" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        Login
+      </Link>
     </nav>
   )
 }
