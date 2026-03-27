@@ -58,19 +58,20 @@ function BinaryLogo() {
   if (!art) return null
 
   return (
-    <pre className="binary-logo" style={{
-      fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '0.72rem',
-      lineHeight: 1.4,
-      letterSpacing: '0.04em',
-      whiteSpace: 'pre',
-      overflow: 'hidden',
-      padding: '60px 52px 52px',
-      userSelect: 'none',
-      width: '100%',
-    }}>
-      {art}
-    </pre>
+    <div className="binary-logo" style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+      <pre style={{
+        fontFamily: '"Courier New", Courier, monospace',
+        fontSize: '0.72rem',
+        lineHeight: 1.4,
+        color: 'rgba(255,255,255,0.92)',
+        letterSpacing: '0.04em',
+        whiteSpace: 'pre',
+        userSelect: 'none',
+        padding: '60px 0 52px',
+      }}>
+        {art}
+      </pre>
+    </div>
   )
 }
 
