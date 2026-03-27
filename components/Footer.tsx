@@ -71,50 +71,58 @@ export default function Footer() {
       padding: '80px 52px 48px',
       background: 'var(--bg)',
     }}>
-      {/* Compliance badges */}
+      {/* Compliance badge carousel */}
       <div style={{
-        display: 'flex',
-        maxWidth: 600,
-        margin: '0 auto 80px',
+        overflow: 'hidden',
         borderTop: '1px solid rgba(255,255,255,0.06)',
-        borderLeft: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        margin: '0 0 80px',
+        position: 'relative',
       }}>
-        {BADGES.map(b => (
-          <a key={b.name} href={b.href} target="_blank" rel="noopener noreferrer" style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            padding: '26px 16px',
-            borderRight: '1px solid rgba(255,255,255,0.06)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            background: 'var(--bg-card)',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-            textDecoration: 'none',
-          }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#101010'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'}
-          >
-            {b.icon}
-            <span style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.62rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'rgba(180,180,180,0.8)',
-              fontWeight: 300,
-            }}>{b.name}</span>
-            <span style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.58rem',
-              color: 'rgba(140,140,140,0.8)',
-              letterSpacing: '0.04em',
-              fontWeight: 300,
-            }}>Details ↗</span>
-          </a>
-        ))}
+        {/* fade edges */}
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to right, var(--bg), transparent)', zIndex: 2, pointerEvents: 'none' }}/>
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to left, var(--bg), transparent)', zIndex: 2, pointerEvents: 'none' }}/>
+        <div style={{
+          display: 'flex',
+          animation: 'badgeScroll 18s linear infinite',
+          width: 'max-content',
+        }}>
+          {[...BADGES, ...BADGES, ...BADGES].map((b, i) => (
+            <a key={i} href={b.href} target="_blank" rel="noopener noreferrer" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
+              padding: '26px 52px',
+              borderRight: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--bg-card)',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+              textDecoration: 'none',
+              flexShrink: 0,
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101010'; (e.currentTarget.parentElement as HTMLElement).style.animationPlayState = 'paused' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'; (e.currentTarget.parentElement as HTMLElement).style.animationPlayState = 'running' }}
+            >
+              {b.icon}
+              <span style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.62rem',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'rgba(180,180,180,0.8)',
+                fontWeight: 300,
+              }}>{b.name}</span>
+              <span style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.58rem',
+                color: 'rgba(140,140,140,0.8)',
+                letterSpacing: '0.04em',
+                fontWeight: 300,
+              }}>Details ↗</span>
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* Links */}
