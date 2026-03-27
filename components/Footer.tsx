@@ -19,9 +19,16 @@ function BinaryLogo() {
     ctx.fillStyle = '#000'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle = '#fff'
-    ctx.font = `bold ${Math.floor(rows * cellH * 0.84)}px Arial`
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'center'
+
+    let fontSize = Math.floor(rows * cellH * 0.84)
+    ctx.font = `bold ${fontSize}px Arial`
+    const measured = ctx.measureText('ITHILDIN').width
+    if (measured > canvas.width * 0.94) {
+      fontSize = Math.floor(fontSize * (canvas.width * 0.94) / measured)
+      ctx.font = `bold ${fontSize}px Arial`
+    }
     ctx.fillText('ITHILDIN', canvas.width / 2, canvas.height / 2)
 
     const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
