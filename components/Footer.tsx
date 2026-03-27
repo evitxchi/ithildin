@@ -6,10 +6,10 @@ function BinaryLogo() {
   const [art, setArt] = useState('')
 
   useEffect(() => {
-    const cols = 200
-    const rows = 18
-    const cellW = 8
-    const cellH = 13
+    const cols = 120
+    const rows = 20
+    const cellW = 10
+    const cellH = 15
 
     const canvas = document.createElement('canvas')
     canvas.width = cols * cellW
@@ -36,7 +36,7 @@ function BinaryLogo() {
         const bright = data[idx]
         if (bright > 80) {
           line += Math.random() > 0.5 ? '1' : '0'
-        } else if (Math.random() < 0.1) {
+        } else if (Math.random() < 0.08) {
           line += Math.random() > 0.5 ? '1' : '0'
         } else {
           line += '\u00a0'
@@ -51,15 +51,14 @@ function BinaryLogo() {
   if (!art) return null
 
   return (
-    <pre style={{
+    <pre className="binary-logo" style={{
       fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '0.38rem',
-      lineHeight: 1.35,
-      color: 'rgba(255,255,255,0.13)',
-      letterSpacing: '0.03em',
+      fontSize: '0.72rem',
+      lineHeight: 1.4,
+      letterSpacing: '0.04em',
       whiteSpace: 'pre',
       overflow: 'hidden',
-      padding: '60px 52px 48px',
+      padding: '60px 52px 52px',
       userSelect: 'none',
       width: '100%',
     }}>
