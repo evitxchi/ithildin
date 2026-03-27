@@ -55,17 +55,26 @@ function VisUpload({ active }: { active: boolean }) {
 
   useEffect(() => {
     if (!active) return
-    let t: NodeJS.Timeout
+    let cancelled = false
     function run() {
+      if (cancelled) return
       setScanY(0); setAiVisible(false)
       let y = 0
       const iv = setInterval(() => {
+        if (cancelled) { clearInterval(iv); return }
         y += 2; setScanY(y)
-        if (y >= 60) { clearInterval(iv); setTimeout(() => { setAiVisible(true); t = setTimeout(run, 1800) }, 200) }
+        if (y >= 60) {
+          clearInterval(iv)
+          setTimeout(() => {
+            if (cancelled) return
+            setAiVisible(true)
+            setTimeout(run, 1800)
+          }, 200)
+        }
       }, 16)
     }
     run()
-    return () => clearTimeout(t)
+    return () => { cancelled = true }
   }, [active])
 
   return (
@@ -258,14 +267,15 @@ function VisBrief({ active }: { active: boolean }) {
   const [shown, setShown] = useState(0)
   useEffect(() => {
     if (!active) return
-    let timers: NodeJS.Timeout[] = []
+    let cancelled = false
     function run() {
+      if (cancelled) return
       setShown(0)
-      timers = BRIEF.map((_, i) => setTimeout(() => setShown(i + 1), i * 380))
-      timers.push(setTimeout(run, BRIEF.length * 380 + 1800))
+      BRIEF.forEach((_, i) => setTimeout(() => { if (!cancelled) setShown(i + 1) }, i * 380))
+      setTimeout(run, BRIEF.length * 380 + 1800)
     }
     run()
-    return () => timers.forEach(clearTimeout)
+    return () => { cancelled = true }
   }, [active])
 
   return (
@@ -316,17 +326,22 @@ function VisCredibility({ active }: { active: boolean }) {
 
   useEffect(() => {
     if (!active) return
-    let iv: NodeJS.Timeout, rowTimers: NodeJS.Timeout[], barTimer: NodeJS.Timeout, loopTimer: NodeJS.Timeout
+    let cancelled = false
     function run() {
+      if (cancelled) return
       setCount(0); setRows(0); setBars(false)
       let c = 0
-      iv = setInterval(() => { c++; setCount(c); if (c >= 48) clearInterval(iv) }, 18)
-      rowTimers = CRED_ROWS.map((_, i) => setTimeout(() => setRows(i + 1), 300 + i * 280))
-      barTimer = setTimeout(() => setBars(true), 500)
-      loopTimer = setTimeout(run, 300 + CRED_ROWS.length * 280 + 2000)
+      const iv = setInterval(() => {
+        if (cancelled) { clearInterval(iv); return }
+        c++; setCount(c)
+        if (c >= 48) clearInterval(iv)
+      }, 18)
+      CRED_ROWS.forEach((_, i) => setTimeout(() => { if (!cancelled) setRows(i + 1) }, 300 + i * 280))
+      setTimeout(() => { if (!cancelled) setBars(true) }, 500)
+      setTimeout(run, 300 + CRED_ROWS.length * 280 + 2000)
     }
     run()
-    return () => { clearInterval(iv); rowTimers?.forEach(clearTimeout); clearTimeout(barTimer); clearTimeout(loopTimer) }
+    return () => { cancelled = true }
   }, [active])
 
   return (
