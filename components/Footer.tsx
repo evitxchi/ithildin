@@ -55,7 +55,7 @@ function BinaryLogo() {
       lastEl.current.style.color = ''
     }
     const el = e.currentTarget
-    el.style.textShadow = '0 0 8px #fff, 0 0 20px rgba(255,255,255,0.75), 0 0 42px rgba(255,255,255,0.3)'
+    el.style.textShadow = '0 0 4px #fff, 0 0 12px #fff, 0 0 28px rgba(255,255,255,0.95), 0 0 60px rgba(255,255,255,0.6), 0 0 100px rgba(255,255,255,0.25)'
     el.style.color = '#fff'
     lastEl.current = el
   }, [])
