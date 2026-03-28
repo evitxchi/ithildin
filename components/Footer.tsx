@@ -1,27 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback, Fragment } from 'react'
 import Link from 'next/link'
 
 function BinaryLogo() {
-  const [art, setArt] = useState('')
+  const [chars, setChars] = useState<Array<{ ch: string; k: number }>>([])
+  const lastEl = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    const cols = 120
-    const rows = 20
-    const cellW = 10
-    const cellH = 15
-
+    const cols = 120, rows = 20, cellW = 10, cellH = 15
     const canvas = document.createElement('canvas')
     canvas.width = cols * cellW
     canvas.height = rows * cellH
     const ctx = canvas.getContext('2d')!
-
     ctx.fillStyle = '#000'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle = '#fff'
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'center'
-
     let fontSize = Math.floor(rows * cellH * 0.84)
     ctx.font = `bold ${fontSize}px Arial`
     const measured = ctx.measureText('ITHILDIN').width
@@ -30,32 +25,49 @@ function BinaryLogo() {
       ctx.font = `bold ${fontSize}px Arial`
     }
     ctx.fillText('ITHILDIN', canvas.width / 2, canvas.height / 2)
-
     const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const lines: string[] = []
 
+    const flat: Array<{ ch: string; k: number }> = []
+    let k = 0
     for (let r = 0; r < rows; r++) {
-      let line = ''
       for (let c = 0; c < cols; c++) {
         const px = Math.floor(c * cellW + cellW / 2)
         const py = Math.floor(r * cellH + cellH / 2)
-        const idx = (py * canvas.width + px) * 4
-        const bright = data[idx]
+        const bright = data[(py * canvas.width + px) * 4]
+        let ch: string
         if (bright > 80) {
-          line += Math.random() > 0.5 ? '1' : '0'
+          ch = Math.random() > 0.5 ? '1' : '0'
         } else if (Math.random() < 0.08) {
-          line += Math.random() > 0.5 ? '1' : '0'
+          ch = Math.random() > 0.5 ? '1' : '0'
         } else {
-          line += '\u00a0'
+          ch = '\u00a0'
         }
+        flat.push({ ch, k: k++ })
       }
-      lines.push(line)
+      flat.push({ ch: '\n', k: k++ })
     }
-
-    setArt(lines.join('\n'))
+    setChars(flat)
   }, [])
 
-  if (!art) return null
+  const onEnter = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
+    if (lastEl.current) {
+      lastEl.current.style.textShadow = 'none'
+      lastEl.current.style.color = ''
+    }
+    const el = e.currentTarget
+    el.style.textShadow = '0 0 8px #fff, 0 0 20px rgba(255,255,255,0.75), 0 0 42px rgba(255,255,255,0.3)'
+    el.style.color = '#fff'
+    lastEl.current = el
+  }, [])
+
+  const onLeave = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
+    const el = e.currentTarget
+    el.style.textShadow = 'none'
+    el.style.color = ''
+    if (lastEl.current === el) lastEl.current = null
+  }, [])
+
+  if (chars.length === 0) return null
 
   return (
     <div className="binary-logo" style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
@@ -69,7 +81,15 @@ function BinaryLogo() {
         userSelect: 'none',
         padding: '60px 0 52px',
       }}>
-        {art}
+        {chars.map(({ ch, k }) => {
+          if (ch !== '0' && ch !== '1') return <Fragment key={k}>{ch}</Fragment>
+          return (
+            <span key={k} onMouseEnter={onEnter} onMouseLeave={onLeave}
+              style={{ transition: 'text-shadow 0.07s ease, color 0.07s ease' }}>
+              {ch}
+            </span>
+          )
+        })}
       </pre>
     </div>
   )
