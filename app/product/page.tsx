@@ -465,6 +465,284 @@ function IntelReportDemo() {
   )
 }
 
+// ─── PSYCHOLOGICAL PROFILE ────────────────────────────────────────────────────
+
+const PSYCH_STAGES = [
+  {
+    time: '0:28',
+    label: 'Baseline Established',
+    color: '#7c6fff',
+    // chart values: all axes show "concern level" (confidence/consistency inverted)
+    chart: [28, 28, 31, 22, 25],
+    dims: [
+      { name: 'Defensiveness',         raw: 28, hi: true,  note: 'Cooperative — direct, unqualified responses' },
+      { name: 'Confidence',            raw: 72, hi: false, note: 'Steady delivery — minimal response latency' },
+      { name: 'Deception Indicators',  raw: 31, hi: true,  note: 'Within baseline range — no flags' },
+      { name: 'Narrative Consistency', raw: 78, hi: false, note: 'Tight — story holds across all segments' },
+      { name: 'Pressure Response',     raw: 25, hi: true,  note: 'Stable — no avoidance on direct questions' },
+    ],
+  },
+  {
+    time: '1:02',
+    label: 'Stress Emerging',
+    color: '#b36fff',
+    chart: [51, 52, 58, 38, 44],
+    dims: [
+      { name: 'Defensiveness',         raw: 51, hi: true,  note: '↑ Hedging language detected — Qs 7, 11, 14' },
+      { name: 'Confidence',            raw: 48, hi: false, note: '↓ Response latency increasing (+0.8s avg)' },
+      { name: 'Deception Indicators',  raw: 58, hi: true,  note: '⚡ Deviation from baseline — flagging' },
+      { name: 'Narrative Consistency', raw: 62, hi: false, note: '↓ Minor gaps appearing in 0–30 min account' },
+      { name: 'Pressure Response',     raw: 44, hi: true,  note: '↑ Answer quality drops on exhibit challenges' },
+    ],
+  },
+  {
+    time: '1:14',
+    label: 'Critical Zone',
+    color: '#ff5f8d',
+    chart: [74, 69, 82, 61, 71],
+    dims: [
+      { name: 'Defensiveness',         raw: 74, hi: true,  note: '⚠ 14 qualifiers in last 8 responses' },
+      { name: 'Confidence',            raw: 31, hi: false, note: '⚠ 6 self-corrections — over-explanation pattern' },
+      { name: 'Deception Indicators',  raw: 82, hi: true,  note: '🔴 2.4σ above baseline — strong pattern detected' },
+      { name: 'Narrative Consistency', raw: 39, hi: false, note: '🔴 3 direct contradictions confirmed' },
+      { name: 'Pressure Response',     raw: 71, hi: true,  note: '⚠ Sharp degradation on badge log exhibits' },
+    ],
+  },
+]
+
+function radarPts(vals: number[], size: number) {
+  const cx = size / 2, cy = size / 2, r = size * 0.36
+  return vals.map((v, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / vals.length
+    const ratio = v / 100
+    return [cx + ratio * r * Math.cos(angle), cy + ratio * r * Math.sin(angle)] as [number, number]
+  })
+}
+
+function radarGrid(size: number, n: number, rings: number) {
+  const cx = size / 2, cy = size / 2, r = size * 0.36
+  return Array.from({ length: rings }, (_, ri) => {
+    const ratio = (ri + 1) / rings
+    const pts = Array.from({ length: n }, (__, i) => {
+      const angle = -Math.PI / 2 + (i * 2 * Math.PI) / n
+      return `${cx + ratio * r * Math.cos(angle)},${cy + ratio * r * Math.sin(angle)}`
+    })
+    return pts.join(' ')
+  })
+}
+
+function PsychProfileDemo() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [stage, setStage] = useState(0)
+  const [triggered, setTriggered] = useState(false)
+  const [vals, setVals] = useState(PSYCH_STAGES[0].chart)
+  const animRef = useRef<number>()
+  const fromVals = useRef(PSYCH_STAGES[0].chart)
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
+    }, { threshold: 0.12 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  // Auto-cycle stages
+  useEffect(() => {
+    if (!triggered) return
+    const t = setInterval(() => setStage(s => (s + 1) % PSYCH_STAGES.length), 3200)
+    return () => clearInterval(t)
+  }, [triggered])
+
+  // Tween toward new stage values
+  useEffect(() => {
+    const target = PSYCH_STAGES[stage].chart
+    const from = [...fromVals.current]
+    let start = 0
+    const dur = 1100
+    if (animRef.current) cancelAnimationFrame(animRef.current)
+    function step(ts: number) {
+      if (!start) start = ts
+      const t = Math.min((ts - start) / dur, 1)
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+      setVals(from.map((v, i) => v + (target[i] - v) * e))
+      if (t < 1) animRef.current = requestAnimationFrame(step)
+      else fromVals.current = target
+    }
+    animRef.current = requestAnimationFrame(step)
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
+  }, [stage])
+
+  const s = PSYCH_STAGES[stage]
+  const pts = radarPts(vals, 220)
+  const ptsStr = pts.map(([x, y]) => `${x},${y}`).join(' ')
+  const grid = radarGrid(220, 5, 4)
+  const axisLabels = ['Defensiveness', 'Confidence', 'Deception', 'Consistency', 'Pressure']
+  const SIZE = 220
+
+  return (
+    <div ref={ref} style={{
+      background: '#090909', border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 12, overflow: 'hidden',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
+      maxWidth: 820, margin: '0 auto',
+    }}>
+      {/* Chrome */}
+      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
+            app.ithildin.com/profile/harmon — psychological analysis
+          </div>
+        </div>
+        {/* Live indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, animation: 'pulse 1.5s ease-in-out infinite', boxShadow: `0 0 6px ${s.color}` }}/>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: s.color, letterSpacing: '0.1em' }}>LIVE</span>
+        </div>
+      </div>
+
+      {/* Header bar */}
+      <div style={{ padding: '9px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>
+          Witness Psychological Profile — Robert Harmon
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {PSYCH_STAGES.map((st, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: stage === i ? 1 : 0.3, transition: 'opacity 0.3s' }}>
+              <div style={{ width: 4, height: 4, borderRadius: '50%', background: st.color }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.06em' }}>{st.time}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', height: 340 }}>
+        {/* Radar */}
+        <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', background: '#080808', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 10px', gap: 12 }}>
+          <svg width={SIZE} height={SIZE} style={{ overflow: 'visible' }}>
+            {/* Grid rings */}
+            {grid.map((pts, i) => (
+              <polygon key={i} points={pts} fill="none"
+                stroke="rgba(255,255,255,0.05)" strokeWidth={0.8} />
+            ))}
+            {/* Axis lines */}
+            {Array.from({ length: 5 }, (_, i) => {
+              const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5
+              const r = SIZE * 0.36
+              return (
+                <line key={i}
+                  x1={SIZE/2} y1={SIZE/2}
+                  x2={SIZE/2 + r * Math.cos(angle)}
+                  y2={SIZE/2 + r * Math.sin(angle)}
+                  stroke="rgba(255,255,255,0.07)" strokeWidth={0.8} />
+              )
+            })}
+            {/* Ghost trail — previous stage */}
+            <polygon points={radarPts(PSYCH_STAGES[Math.max(0, stage - 1)].chart, SIZE).map(([x,y]) => `${x},${y}`).join(' ')}
+              fill={`${PSYCH_STAGES[Math.max(0, stage - 1)].color}08`}
+              stroke={`${PSYCH_STAGES[Math.max(0, stage - 1)].color}22`}
+              strokeWidth={1} strokeDasharray="3 3" />
+            {/* Main polygon */}
+            <polygon points={ptsStr}
+              fill={`${s.color}18`}
+              stroke={s.color}
+              strokeWidth={1.5}
+              style={{ filter: `drop-shadow(0 0 6px ${s.color}60)`, transition: 'fill 0.6s ease, stroke 0.6s ease' }}
+            />
+            {/* Data points */}
+            {pts.map(([x, y], i) => (
+              <circle key={i} cx={x} cy={y} r={3}
+                fill={s.color}
+                style={{ filter: `drop-shadow(0 0 4px ${s.color})` }} />
+            ))}
+            {/* Axis labels */}
+            {Array.from({ length: 5 }, (_, i) => {
+              const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5
+              const r = SIZE * 0.36 + 16
+              const x = SIZE/2 + r * Math.cos(angle)
+              const y = SIZE/2 + r * Math.sin(angle)
+              return (
+                <text key={i} x={x} y={y}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fontFamily="monospace" fontSize="7.5"
+                  fill="rgba(255,255,255,0.28)"
+                  letterSpacing="0.5">
+                  {axisLabels[i]}
+                </text>
+              )
+            })}
+          </svg>
+          {/* Stage label */}
+          <div style={{ textAlign: 'center' }}>
+            <span style={{
+              fontFamily: 'monospace', fontSize: '0.44rem', letterSpacing: '0.1em',
+              color: s.color, background: `${s.color}15`,
+              border: `1px solid ${s.color}30`, borderRadius: 3,
+              padding: '2px 8px', textTransform: 'uppercase',
+              transition: 'color 0.6s, background 0.6s, border-color 0.6s',
+              boxShadow: `0 0 8px ${s.color}20`,
+            }}>
+              {s.label}
+            </span>
+          </div>
+        </div>
+
+        {/* Dimensions */}
+        <div style={{ padding: '18px 22px', overflowY: 'auto' }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 18 }}>
+            Behavioral Dimensions · {s.time}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {s.dims.map((d, i) => {
+              const barVal = d.hi ? d.raw : 100 - d.raw
+              const barColor = barVal > 65 ? '#ff4757' : barVal > 40 ? '#ffa502' : '#2ed573'
+              return (
+                <div key={d.name}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: 'rgba(255,255,255,0.52)' }}>{d.name}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: barColor, filter: `drop-shadow(0 0 3px ${barColor}50)`, transition: 'color 0.5s' }}>
+                      {d.raw}%
+                    </span>
+                  </div>
+                  <div style={{ height: 2.5, background: 'rgba(255,255,255,0.05)', borderRadius: 2, marginBottom: 5, overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%', borderRadius: 2,
+                      background: `linear-gradient(90deg, ${barColor}88, ${barColor})`,
+                      boxShadow: `0 0 5px ${barColor}50`,
+                      width: `${d.raw}%`,
+                      transition: `width 0.75s cubic-bezier(.4,0,.2,1) ${i * 0.08}s, background 0.5s ease`,
+                    }} />
+                  </div>
+                  <p style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.02em', transition: 'opacity 0.4s' }}>
+                    {d.note}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.14)' }}>Dimensions: 5</span>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.14)' }}>Baseline locked: 0:18</span>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: s.color, transition: 'color 0.6s' }}>
+            Profile status: {s.label}
+          </span>
+        </div>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>
+          Updating every 90s · Harmon v. Calloway
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function Product() {
   useReveal()
 
@@ -500,6 +778,22 @@ export default function Product() {
 
       <section style={{ padding: '0 52px 80px' }}>
         <IntelReportDemo />
+      </section>
+
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div className="reveal" style={{ marginBottom: 52 }}>
+          <p className="label" style={{ marginBottom: 18 }}>Behavioral Intelligence</p>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
+            The witness&rsquo;s psychology.<br/>Mapped in real time.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+            Ithildin builds a live psychological profile as testimony unfolds — tracking defensiveness, deception patterns, and narrative integrity across every 30-minute interval.
+          </p>
+        </div>
+      </section>
+
+      <section style={{ padding: '0 52px 80px' }}>
+        <PsychProfileDemo />
       </section>
 
       <section style={{ padding: '80px 52px 80px', borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1100, margin: '0 auto' }}>
