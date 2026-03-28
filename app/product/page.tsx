@@ -237,11 +237,11 @@ export default function Product() {
 
       <section style={{ padding: '120px 52px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="reveal">
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1, marginBottom: 20 }}>
-            Start your first<br/>free deposition
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.08, marginBottom: 20 }}>
+            Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 40 }}>
-            No credit card required.
+            Talk to our team or deploy today.
           </p>
           <Link href="/waitlist" className="btn btn-solid" style={{ padding: '12px 36px' }}>
             Join Waitlist
