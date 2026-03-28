@@ -187,6 +187,284 @@ function DepoDemo() {
   )
 }
 
+// ─── DEPOSITION INTELLIGENCE REPORT ──────────────────────────────────────────
+
+const W_METRICS = [
+  { label: 'Consistency Index',         v: 34, color: '#ff4757', note: '12 deviations flagged · page:line cited' },
+  { label: 'Evasion Rate',              v: 67, color: '#ffa502', note: 'Deflection cluster — Qs 4, 7, 11, 14' },
+  { label: 'Contradiction Density',     v: 83, color: '#ff4757', disp: '8.3/hr', note: '2.1× above firm historical average' },
+  { label: 'Exhibit Response Accuracy', v: 41, color: '#ffa502', note: 'Recall failure on Ex. 3, 7, 12' },
+  { label: 'Correction Frequency',      v: 60, color: '#fd79a8', disp: '6×', note: '4 self-amendments on material facts' },
+]
+
+const D_METRICS = [
+  { label: 'Question Efficiency',       v: 82, color: '#2ed573', note: 'Strong productive-to-total ratio' },
+  { label: 'Follow-Up Capture Rate',    v: 71, color: '#1e90ff', note: '4 AI-suggested threads not pursued' },
+  { label: 'Exhibit Utilization',       v: 71, color: '#00d2d3', disp: '5 / 7', note: 'Strategic deployment timing — solid' },
+  { label: 'Timeline Coverage',         v: 88, color: '#2ed573', note: '3 key case events not addressed' },
+  { label: 'Pressure Point Conversion', v: 64, color: '#ffa502', note: '36% of flagged contradictions passed over' },
+]
+
+const CW = [
+  { name: 'Robert Harmon', role: 'Primary Deponent',     score: 4.2, bar: 42, vuln: 8, color: '#ff4757', badge: 'HIGH RISK'  },
+  { name: 'Patricia Chen', role: 'Corroborating · CFO',  score: 8.1, bar: 81, vuln: 1, color: '#2ed573', badge: 'STABLE'     },
+  { name: 'David Mills',   role: 'Adverse · Facilities', score: 6.3, bar: 63, vuln: 4, color: '#ffa502', badge: 'VULNERABLE' },
+]
+
+const CONFLICTS_DATA = [
+  { a: 'Harmon', b: 'Mills', sev: 'HIGH', topic: 'Server room access — timing conflicts by 47 minutes' },
+  { a: 'Harmon', b: 'Chen',  sev: 'HIGH', topic: 'Authorization chain for facility entry diverges' },
+  { a: 'Mills',  b: 'Chen',  sev: 'MED',  topic: 'Q4 disclosure — Chen confirms, Mills denies knowledge' },
+]
+
+function ScoreArc({ v, color, size = 92 }: { v: number; color: string; size?: number }) {
+  const r = size * 0.38, cx = size / 2, cy = size / 2
+  const circ = 2 * Math.PI * r
+  const arc = circ * 0.75
+  const fill = (v / 10) * arc
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(135deg)', display: 'block' }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)"
+        strokeWidth={3.5} strokeDasharray={`${arc} ${circ - arc}`} strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={color}
+        strokeWidth={3.5} strokeDasharray={`${fill} ${circ - fill}`} strokeLinecap="round"
+        style={{ filter: `drop-shadow(0 0 6px ${color}70)`, transition: 'stroke-dasharray 1.1s cubic-bezier(.4,0,.2,1) 0.2s' }}
+      />
+    </svg>
+  )
+}
+
+function IntelReportDemo() {
+  const [tab, setTab] = useState(0)
+  const ref = useRef<HTMLDivElement>(null)
+  const [triggered, setTriggered] = useState(false)
+  const [trigger, setTrigger] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTriggered(true); setTrigger(true); io.disconnect() }
+    }, { threshold: 0.12 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!triggered) return
+    setTrigger(false)
+    const t = setTimeout(() => setTrigger(true), 60)
+    return () => clearTimeout(t)
+  }, [tab]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const metrics = tab === 0 ? W_METRICS : D_METRICS
+  const scoreVal = tab === 0 ? 4.2 : 7.8
+  const scoreColor = tab === 0 ? '#ff4757' : '#2ed573'
+  const TABS = ['Witness Intelligence', 'Depo Performance', 'Cross-Witness Intel']
+  const TAB_COLORS = ['#ff4757', '#2ed573', '#a29bfe']
+
+  return (
+    <div ref={ref} style={{
+      background: '#090909', border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 12, overflow: 'hidden',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
+      maxWidth: 820, margin: '0 auto',
+    }}>
+      {/* Chrome */}
+      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
+            app.ithildin.com/reports/harmon-v-calloway
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ background: '#0c0c0c', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', padding: '0 14px' }}>
+        {TABS.map((t, i) => (
+          <button key={t} onClick={() => setTab(i)} style={{
+            padding: '9px 14px', background: 'transparent', border: 'none',
+            borderBottom: tab === i ? `1.5px solid ${TAB_COLORS[i]}` : '1.5px solid transparent',
+            fontFamily: 'monospace', fontSize: '0.52rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: tab === i ? 'rgba(255,255,255,0.78)' : 'rgba(255,255,255,0.22)',
+            cursor: 'pointer', transition: 'all 0.18s ease', whiteSpace: 'nowrap',
+          }}>
+            {t}
+          </button>
+        ))}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingRight: 2 }}>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.12)', letterSpacing: '0.05em' }}>
+            Harmon v. Calloway · 3 depositions
+          </span>
+        </div>
+      </div>
+
+      {/* Body */}
+      {tab < 2 ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: 345 }}>
+          {/* Score panel */}
+          <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', background: '#080808', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', gap: 10 }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.18em', color: 'rgba(255,255,255,0.18)', textTransform: 'uppercase', textAlign: 'center' }}>
+              {tab === 0 ? 'Credibility Score' : 'Performance Score'}
+            </p>
+            <div style={{ position: 'relative', width: 92, height: 92 }}>
+              <ScoreArc v={trigger ? scoreVal : 0} color={scoreColor} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.55rem', color: scoreColor, lineHeight: 1, filter: `drop-shadow(0 0 8px ${scoreColor}55)` }}>
+                  {scoreVal}
+                </span>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.22)' }}>/10</span>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.45)' }}>
+                {tab === 0 ? 'Robert Harmon' : 'Harmon v. Calloway'}
+              </p>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.12em', color: scoreColor, background: `${scoreColor}15`, border: `1px solid ${scoreColor}28`, borderRadius: 3, padding: '2px 7px', textTransform: 'uppercase' }}>
+                {tab === 0 ? 'HIGH RISK' : 'ABOVE AVERAGE'}
+              </span>
+            </div>
+            {/* Sparkline */}
+            <svg width={118} height={22} style={{ opacity: 0.3, marginTop: 4 }}>
+              {([18,13,15,9,12,6,10,5,8,3] as number[]).map((y, i, arr) => i === 0 ? null : (
+                <line key={i} x1={13*(i-1)} y1={arr[i-1]} x2={13*i} y2={y}
+                  stroke={scoreColor} strokeWidth={1.2} strokeLinecap="round" />
+              ))}
+              {([18,13,15,9,12,6,10,5,8,3] as number[]).map((y, i) => (
+                <circle key={i} cx={13*i} cy={y} r={1.3} fill={scoreColor} />
+              ))}
+            </svg>
+          </div>
+
+          {/* Metrics */}
+          <div style={{ padding: '18px 20px', overflowY: 'auto' }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+              {tab === 0 ? 'Credibility Breakdown' : 'Strategy Breakdown'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {metrics.map((m, i) => (
+                <div key={m.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)' }}>{m.label}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: m.color, filter: `drop-shadow(0 0 3px ${m.color}50)` }}>
+                      {m.disp ?? `${m.v}%`}
+                    </span>
+                  </div>
+                  <div style={{ height: 2.5, background: 'rgba(255,255,255,0.05)', borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%', borderRadius: 2,
+                      background: `linear-gradient(90deg, ${m.color}88, ${m.color})`,
+                      boxShadow: `0 0 6px ${m.color}50`,
+                      width: trigger ? `${m.v}%` : '0%',
+                      transition: `width 0.75s cubic-bezier(.4,0,.2,1) ${i * 0.1}s`,
+                    }} />
+                  </div>
+                  <p style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.02em' }}>{m.note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Cross-Witness */
+        <div style={{ height: 345, display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+          {/* Witnesses */}
+          <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', padding: '18px 20px', overflowY: 'auto' }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+              Witness Registry · 3
+            </p>
+            {CW.map((w, i) => (
+              <div key={w.name} style={{ paddingBottom: 14, marginBottom: i < CW.length - 1 ? 14 : 0, borderBottom: i < CW.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 7 }}>
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>{w.name}</p>
+                    <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>{w.role}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: w.color, filter: `drop-shadow(0 0 4px ${w.color}50)`, display: 'block' }}>{w.score}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.38rem', letterSpacing: '0.1em', color: w.color, opacity: 0.65, textTransform: 'uppercase' }}>{w.badge}</span>
+                  </div>
+                </div>
+                <div style={{ height: 2, background: 'rgba(255,255,255,0.05)', borderRadius: 1, overflow: 'hidden', marginBottom: 5 }}>
+                  <div style={{
+                    height: '100%',
+                    background: `linear-gradient(90deg, ${w.color}60, ${w.color})`,
+                    boxShadow: `0 0 5px ${w.color}40`,
+                    width: trigger ? `${w.bar}%` : '0%',
+                    transition: `width 0.8s cubic-bezier(.4,0,.2,1) ${i * 0.12}s`,
+                  }} />
+                </div>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.18)' }}>
+                  {w.vuln} impeachment point{w.vuln !== 1 ? 's' : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Conflicts */}
+          <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+              Testimony Conflicts · {CONFLICTS_DATA.length}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {CONFLICTS_DATA.map((c, i) => (
+                <div key={i} style={{
+                  padding: '9px 11px',
+                  background: 'rgba(255,255,255,0.015)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderLeft: `2px solid ${c.sev === 'HIGH' ? '#ff4757' : '#ffa502'}`,
+                  borderRadius: '0 4px 4px 0',
+                  opacity: trigger ? 1 : 0,
+                  transform: trigger ? 'translateY(0)' : 'translateY(6px)',
+                  transition: `opacity 0.4s ease ${i * 0.12 + 0.1}s, transform 0.4s ease ${i * 0.12 + 0.1}s`,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>
+                      {c.a} ↔ {c.b}
+                    </span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.1em', color: c.sev === 'HIGH' ? '#ff4757' : '#ffa502' }}>{c.sev}</span>
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.63rem', fontWeight: 300, color: 'rgba(255,255,255,0.42)', lineHeight: 1.4 }}>{c.topic}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+              <p style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.14)', textTransform: 'uppercase', marginBottom: 8 }}>
+                Impeachment Priority
+              </p>
+              {[...CW].sort((a, b) => b.vuln - a.vuln).map(w => (
+                <div key={w.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 300, color: 'rgba(255,255,255,0.35)' }}>{w.name}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '0.52rem', color: w.color, filter: `drop-shadow(0 0 3px ${w.color}40)` }}>{w.vuln} pts</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+          {[
+            { dot: '#ff4757', label: '4.2 · Harmon · HIGH RISK' },
+            { dot: '#2ed573', label: '7.8 · Depo · ABOVE AVG' },
+            { dot: '#a29bfe', label: '3 conflicts · 13 vuln. pts' },
+          ].map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: f.dot, boxShadow: `0 0 4px ${f.dot}80` }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.14)' }}>{f.label}</span>
+            </div>
+          ))}
+        </div>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>
+          Generated · 01:14:32 post-deposition
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function Product() {
   useReveal()
 
@@ -206,6 +484,22 @@ export default function Product() {
 
       <section style={{ padding: '0 52px 80px' }}>
         <DepoDemo />
+      </section>
+
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div className="reveal" style={{ marginBottom: 52 }}>
+          <p className="label" style={{ marginBottom: 18 }}>Post-Deposition Intelligence</p>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
+            Every deposition.<br/>Scored. Analyzed. Mapped.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+            The moment testimony ends, Ithildin builds a complete intelligence report — witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
+          </p>
+        </div>
+      </section>
+
+      <section style={{ padding: '0 52px 80px' }}>
+        <IntelReportDemo />
       </section>
 
       <section style={{ padding: '80px 52px 80px', borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1100, margin: '0 auto' }}>
