@@ -46,7 +46,7 @@ export default function Nav() {
       </div>
 
       {/* Right: Login */}
-      <Link href="#" className="nav-link" style={{ color: 'rgba(255,255,255,0.5)' }}>
+      <Link href="/login" className="nav-link" style={{ color: 'rgba(255,255,255,0.5)' }}>
         Login
       </Link>
     </nav>
