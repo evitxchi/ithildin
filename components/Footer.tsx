@@ -55,7 +55,7 @@ function BinaryLogo() {
       lastEl.current.style.color = ''
     }
     const el = e.currentTarget
-    el.style.textShadow = '0 0 4px #fff, 0 0 12px #fff, 0 0 28px rgba(255,255,255,0.95), 0 0 60px rgba(255,255,255,0.6), 0 0 100px rgba(255,255,255,0.25)'
+    el.style.textShadow = '0 0 2px #fff, 0 0 8px #fff, 0 0 20px #fff, 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.7), 0 0 200px rgba(255,255,255,0.4)'
     el.style.color = '#fff'
     lastEl.current = el
   }, [])
@@ -85,7 +85,7 @@ function BinaryLogo() {
           if (ch !== '0' && ch !== '1') return <Fragment key={k}>{ch}</Fragment>
           return (
             <span key={k} onMouseEnter={onEnter} onMouseLeave={onLeave}
-              style={{ transition: 'text-shadow 0.07s ease, color 0.07s ease' }}>
+              style={{ transition: 'text-shadow 0.04s ease, color 0.04s ease' }}>
               {ch}
             </span>
           )
