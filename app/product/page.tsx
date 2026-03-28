@@ -243,8 +243,8 @@ export default function Product() {
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 40 }}>
             No credit card required.
           </p>
-          <Link href="/pricing" className="btn btn-solid" style={{ padding: '12px 36px' }}>
-            View Pricing
+          <Link href="/waitlist" className="btn btn-solid" style={{ padding: '12px 36px' }}>
+            Join Waitlist
           </Link>
         </div>
       </section>
