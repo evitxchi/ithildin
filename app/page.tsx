@@ -565,7 +565,7 @@ export default function Home() {
             fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
             color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, marginBottom: 40, maxWidth: 320,
           }}>
-            Upload your case files.<br />Depose with real-time AI intelligence — contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.
+            Upload your case files.<br />Depose with real-time AI intelligence.<br />Contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.
           </p>
           <EmailCapture />
           <p style={{

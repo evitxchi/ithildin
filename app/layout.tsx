@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Ithildin — AI Deposition Intelligence',
-  description: 'Upload your case files. Depose with real-time AI intelligence — contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.',
+  description: 'Upload your case files. Depose with real-time AI intelligence. Contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
