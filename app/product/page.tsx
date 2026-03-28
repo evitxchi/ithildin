@@ -187,6 +187,406 @@ function DepoDemo() {
   )
 }
 
+// ─── CASE TIMELINE ────────────────────────────────────────────────────────────
+
+const TL_EVENTS = [
+  { date: 'Jan 15', label: 'Contract signed',            src: 'contract.pdf',      conflict: false, above: true  },
+  { date: 'Feb 3',  label: 'Server access email chain',  src: 'email_chain.pdf',   conflict: false, above: false },
+  { date: 'Mar 7',  label: 'Badge credentials issued',   src: 'badge_records.pdf', conflict: false, above: true  },
+  { date: 'Mar 14', label: 'Harmon: "6–9pm, alone"',    src: 'live testimony',    conflict: true,  above: false, note: '↔ Conflicts with badge log' },
+  { date: 'Mar 14', label: 'Badge log: joint access 7:43pm', src: 'badge_log.pdf', conflict: true, above: true, note: '↔ Contradicts testimony' },
+  { date: 'Apr 2',  label: 'Incident report filed',      src: 'incident_001.pdf',  conflict: false, above: false },
+  { date: 'Apr 18', label: '"Never saw Calloway"',        src: 'declaration.pdf',   conflict: true,  above: true, note: 'Directly contradicted at deposition' },
+]
+const TL_POS = [4, 18, 33, 49, 57, 73, 89]
+
+function CaseTimelineDemo() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [triggered, setTriggered] = useState(false)
+  const [shown, setShown] = useState(0)
+  const [lit, setLit] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
+    }, { threshold: 0.1 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!triggered) return
+    const timers: ReturnType<typeof setTimeout>[] = []
+    let interval: ReturnType<typeof setInterval>
+    function runCycle() {
+      setShown(0); setLit(false)
+      let n = 0
+      clearInterval(interval)
+      interval = setInterval(() => {
+        n++; setShown(n)
+        if (n >= TL_EVENTS.length) {
+          clearInterval(interval)
+          timers.push(
+            setTimeout(() => setLit(true), 700),
+            setTimeout(() => runCycle(), 6500),
+          )
+        }
+      }, 430)
+    }
+    runCycle()
+    return () => { clearInterval(interval); timers.forEach(clearTimeout) }
+  }, [triggered])
+
+  return (
+    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
+      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
+            app.ithildin.com/case/harmon-v-calloway/timeline
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00d2d3', animation: 'pulse 2s ease-in-out infinite' }}/>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#00d2d3', letterSpacing: '0.1em' }}>BUILDING</span>
+        </div>
+      </div>
+      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Case Timeline — Harmon v. Calloway</span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: lit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
+          {shown}/{TL_EVENTS.length} events{lit ? ' · 3 conflicts detected' : ''}
+        </span>
+      </div>
+      {/* Timeline */}
+      <div style={{ height: 270, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', left: '2%', right: '2%', top: '50%', height: 1, background: 'rgba(255,255,255,0.07)' }} />
+        {TL_EVENTS.map((ev, i) => {
+          const visible = i < shown
+          const isConflict = ev.conflict && lit
+          const nodeC = isConflict ? '#ff4757' : (ev.src === 'live testimony' ? '#a29bfe' : '#00d2d3')
+          const labelStyle = { fontFamily: 'var(--font-sans)' as const, fontSize: '0.57rem', fontWeight: 300, color: isConflict ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.4)', lineHeight: 1.3, transition: 'color 0.4s' }
+          const dateStyle = { fontFamily: 'monospace' as const, fontSize: '0.39rem', color: nodeC, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.4s', whiteSpace: 'nowrap' as const }
+          const srcStyle = { fontFamily: 'monospace' as const, fontSize: '0.35rem', color: 'rgba(255,255,255,0.15)', marginTop: 2 }
+          const noteStyle = { fontFamily: 'monospace' as const, fontSize: '0.37rem', color: '#ff4757', marginTop: 3 }
+
+          return (
+            <div key={i} style={{ position: 'absolute', left: `${TL_POS[i]}%`, top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: visible ? 1 : 0, transition: 'opacity 0.3s', zIndex: 2 }}>
+              {ev.above && (
+                <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', textAlign: 'center', maxWidth: 90 }}>
+                  <p style={dateStyle}>{ev.date}</p>
+                  <p style={labelStyle}>{ev.label}</p>
+                  {isConflict && ev.note && <p style={noteStyle}>{ev.note}</p>}
+                  <p style={srcStyle}>{ev.src}</p>
+                </div>
+              )}
+              <div style={{ width: isConflict ? 11 : 8, height: isConflict ? 11 : 8, borderRadius: '50%', background: nodeC, boxShadow: isConflict ? `0 0 14px ${nodeC}, 0 0 24px ${nodeC}50` : `0 0 4px ${nodeC}60`, animation: isConflict ? 'pulse 1.2s ease-in-out infinite' : 'none', transition: 'all 0.35s ease', flexShrink: 0 }} />
+              {!ev.above && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', textAlign: 'center', maxWidth: 90 }}>
+                  <p style={dateStyle}>{ev.date}</p>
+                  <p style={labelStyle}>{ev.label}</p>
+                  {isConflict && ev.note && <p style={noteStyle}>{ev.note}</p>}
+                  <p style={srcStyle}>{ev.src}</p>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 14 }}>
+          {[['#00d2d3','Document'],['#a29bfe','Testimony'],['#ff4757','Conflict']].map(([c,l]) => (
+            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}80` }}/>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>{l}</span>
+            </div>
+          ))}
+        </div>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Auto-populates as documents are uploaded</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── DOCUMENT WEB ─────────────────────────────────────────────────────────────
+
+const DOC_NODES = [
+  { id: 'contract',    label: 'contract.pdf',       x: 80,  y: 140, type: 'doc'       },
+  { id: 'email',       label: 'email_chain.pdf',    x: 205, y: 205, type: 'doc'       },
+  { id: 'badge_rec',   label: 'badge_records.pdf',  x: 375, y: 52,  type: 'doc'       },
+  { id: 'badge_log',   label: 'badge_log.pdf',      x: 495, y: 130, type: 'doc'       },
+  { id: 'exhibit_7',   label: 'exhibit_7.pdf',      x: 630, y: 68,  type: 'exhibit'   },
+  { id: 'incident',    label: 'incident_001.pdf',   x: 630, y: 200, type: 'doc'       },
+  { id: 'testimony',   label: 'testimony',          x: 225, y: 88,  type: 'testimony' },
+  { id: 'declaration', label: 'declaration.pdf',    x: 95,  y: 205, type: 'doc'       },
+]
+
+const DOC_EDGES = [
+  { from: 'contract',    to: 'email',      conflict: false },
+  { from: 'email',       to: 'badge_rec',  conflict: false },
+  { from: 'badge_rec',   to: 'badge_log',  conflict: false },
+  { from: 'badge_log',   to: 'exhibit_7',  conflict: false },
+  { from: 'badge_log',   to: 'incident',   conflict: false },
+  { from: 'contract',    to: 'testimony',  conflict: false },
+  { from: 'testimony',   to: 'badge_log',  conflict: true  },
+  { from: 'testimony',   to: 'declaration',conflict: true  },
+]
+
+function DocWebDemo() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [triggered, setTriggered] = useState(false)
+  const [nodeCount, setNodeCount] = useState(0)
+  const [edgeCount, setEdgeCount] = useState(0)
+  const [conflictsLit, setConflictsLit] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
+    }, { threshold: 0.1 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!triggered) return
+    const timers: ReturnType<typeof setTimeout>[] = []
+    let interval: ReturnType<typeof setInterval>
+
+    function runCycle() {
+      setNodeCount(0); setEdgeCount(0); setConflictsLit(false)
+      let n = 0
+      clearInterval(interval)
+      interval = setInterval(() => {
+        n++; setNodeCount(n)
+        if (n >= DOC_NODES.length) {
+          clearInterval(interval)
+          let e = 0
+          const edgeInterval = setInterval(() => {
+            e++; setEdgeCount(e)
+            if (e >= DOC_EDGES.length) {
+              clearInterval(edgeInterval)
+              timers.push(
+                setTimeout(() => setConflictsLit(true), 500),
+                setTimeout(() => runCycle(), 7000),
+              )
+            }
+          }, 200)
+          timers.push(edgeInterval as unknown as ReturnType<typeof setTimeout>)
+        }
+      }, 280)
+      timers.push(interval as unknown as ReturnType<typeof setTimeout>)
+    }
+    runCycle()
+    return () => { clearInterval(interval); timers.forEach(clearTimeout) }
+  }, [triggered])
+
+  const nodeMap = Object.fromEntries(DOC_NODES.map(n => [n.id, n]))
+  const nodeColor = (type: string) => type === 'testimony' ? '#a29bfe' : type === 'exhibit' ? '#00d2d3' : 'rgba(255,255,255,0.25)'
+  const W = 780, H = 260
+
+  return (
+    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
+      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
+            app.ithildin.com/case/harmon-v-calloway/evidence-map
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#a29bfe', animation: 'pulse 2s ease-in-out infinite' }}/>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#a29bfe', letterSpacing: '0.1em' }}>MAPPING</span>
+        </div>
+      </div>
+      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Evidence Web — Harmon v. Calloway</span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: conflictsLit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
+          {nodeCount} nodes · {edgeCount} connections{conflictsLit ? ' · 2 conflict edges' : ''}
+        </span>
+      </div>
+      <div style={{ padding: '10px 20px', background: '#080808' }}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
+          {/* Edges */}
+          {DOC_EDGES.map((edge, i) => {
+            const a = nodeMap[edge.from], b = nodeMap[edge.to]
+            const visible = i < edgeCount
+            const isConflict = edge.conflict && conflictsLit
+            const len = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
+            return (
+              <line key={i}
+                x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                stroke={isConflict ? '#ff4757' : 'rgba(255,255,255,0.12)'}
+                strokeWidth={isConflict ? 1.5 : 1}
+                strokeDasharray={len}
+                strokeDashoffset={visible ? 0 : len}
+                style={{
+                  transition: `stroke-dashoffset 0.5s ease ${i * 0.1}s, stroke 0.4s ease, stroke-width 0.3s`,
+                  filter: isConflict ? 'drop-shadow(0 0 4px #ff4757)' : 'none',
+                }}
+              />
+            )
+          })}
+          {/* Nodes */}
+          {DOC_NODES.map((node, i) => {
+            const visible = i < nodeCount
+            const color = nodeColor(node.type)
+            const isConflictNode = conflictsLit && (node.id === 'testimony' || node.id === 'declaration')
+            return (
+              <g key={node.id} style={{ opacity: visible ? 1 : 0, transition: `opacity 0.3s ease ${i * 0.05}s` }}>
+                <circle cx={node.x} cy={node.y} r={isConflictNode ? 7 : 5}
+                  fill={isConflictNode ? 'rgba(255,71,87,0.15)' : 'rgba(255,255,255,0.04)'}
+                  stroke={isConflictNode ? '#ff4757' : color}
+                  strokeWidth={isConflictNode ? 1.5 : 1}
+                  style={{ filter: isConflictNode ? 'drop-shadow(0 0 6px #ff4757)' : `drop-shadow(0 0 3px ${color}60)`, transition: 'all 0.4s ease' }}
+                />
+                <text x={node.x} y={node.y + (node.type === 'testimony' ? -12 : 16)}
+                  textAnchor="middle" fontFamily="monospace" fontSize="7.5"
+                  fill={isConflictNode ? 'rgba(255,120,120,0.65)' : 'rgba(255,255,255,0.22)'}
+                  style={{ transition: 'fill 0.4s' }}>
+                  {node.label}
+                </text>
+              </g>
+            )
+          })}
+          {/* Conflict labels on edges */}
+          {conflictsLit && DOC_EDGES.filter(e => e.conflict).map((edge, i) => {
+            const a = nodeMap[edge.from], b = nodeMap[edge.to]
+            const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2
+            return (
+              <text key={i} x={mx} y={my - 5} textAnchor="middle" fontFamily="monospace" fontSize="6.5"
+                fill="rgba(255,71,87,0.65)" letterSpacing="0.5"
+                style={{ animation: 'fadeUp 0.4s ease forwards' }}>
+                CONFLICT
+              </text>
+            )
+          })}
+        </svg>
+      </div>
+      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 14 }}>
+          {[['rgba(255,255,255,0.25)','Document'],['#00d2d3','Exhibit'],['#a29bfe','Testimony'],['#ff4757','Conflict']].map(([c,l]) => (
+            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}` }}/>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>{l}</span>
+            </div>
+          ))}
+        </div>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Connections light up as testimony references evidence</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── HEAT MAP ─────────────────────────────────────────────────────────────────
+
+const HEAT_LINES = [
+  { s: 'Q', t: 'Were you at the facility on March 14th?',                          r: 0 },
+  { s: 'A', t: 'Yes. I was there from six until approximately nine.',              r: 0 },
+  { s: 'Q', t: 'Did you interact with Mr. Calloway that evening?',                r: 0 },
+  { s: 'A', t: 'No. I never saw Calloway there.',                                  r: 0 },
+  { s: 'Q', t: 'What was your purpose at the facility?',                          r: 0 },
+  { s: 'A', t: 'Routine server maintenance. Standard check.',                     r: 0 },
+  { s: 'Q', t: 'Were you accompanied by anyone that evening?',                    r: 0 },
+  { s: 'A', t: 'No, I was alone the entire time.',                                r: 1, note: 'Watch — inconsistent with badge log' },
+  { s: 'Q', t: 'Exhibit 3 — your badge log shows entry at 7:43 PM.',             r: 0 },
+  { s: 'A', t: 'That log... may have errors in it.',                              r: 2, note: 'Evasion — challenging document integrity' },
+  { s: 'Q', t: "You're saying the facility's badge log is inaccurate?",           r: 0 },
+  { s: 'A', t: 'I... yes. It sometimes misrecords entries.',                      r: 2, note: 'Hedging — qualified denial, evasion pattern' },
+  { s: 'Q', t: 'Exhibit 7 — Calloway\'s badge, same exact timestamp as yours.', r: 0 },
+  { s: 'A', t: "I may have seen him briefly. I didn't think it was relevant.",    r: 3, note: 'CONTRADICTION — "I never saw Calloway" (4:12)' },
+  { s: 'Q', t: 'You testified moments ago you never saw him. Which is accurate?', r: 0 },
+  { s: 'A', t: 'It was brief. I forgot.',                                         r: 3, note: 'Memory lapse — consider immediate impeachment' },
+  { s: 'Q', t: 'How many times have you revised this account today?',             r: 0 },
+  { s: 'A', t: 'This is the first time.',                                         r: 3, note: 'DEMONSTRABLY FALSE — see declaration 4/18' },
+]
+
+const RISK_BG   = ['rgba(255,255,255,0.02)', 'rgba(253,203,110,0.12)', 'rgba(255,165,2,0.18)', 'rgba(255,71,87,0.18)']
+const RISK_GUTTER = ['rgba(255,255,255,0.06)', '#fdcb6e', '#ffa502', '#ff4757']
+const RISK_LABEL  = ['', 'WATCH', 'INCONSISTENT', 'CONTRADICTION']
+
+function HeatMapDemo() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [triggered, setTriggered] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
+    }, { threshold: 0.1 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  const riskCounts = [0, 1, 2, 3].map(r => HEAT_LINES.filter(l => l.r === r).length)
+
+  return (
+    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
+      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
+            app.ithildin.com/depose/harmon-v-calloway/heatmap
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Deposition Heat Map — Robert Harmon</span>
+        <div style={{ display: 'flex', gap: 12 }}>
+          {[['#2ed573','Clean',riskCounts[0]],['#fdcb6e','Watch',riskCounts[1]],['#ffa502','Inconsistent',riskCounts[2]],['#ff4757','Contradiction',riskCounts[3]]].map(([c,l,n]) => (
+            <div key={l as string} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 6, height: 6, borderRadius: 1, background: c as string }}/>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.3)' }}>{l} ({n})</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Body: transcript + minimap */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 28px', height: 340 }}>
+        {/* Transcript */}
+        <div style={{ overflowY: 'auto', padding: '6px 0' }}>
+          {HEAT_LINES.map((line, i) => (
+            <div key={i} style={{
+              display: 'flex', gap: 0,
+              background: RISK_BG[line.r],
+              borderLeft: `3px solid ${RISK_GUTTER[line.r]}`,
+              opacity: triggered ? 1 : 0,
+              transform: triggered ? 'none' : 'translateX(-4px)',
+              transition: `opacity 0.35s ease ${i * 0.04}s, transform 0.35s ease ${i * 0.04}s`,
+            }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: 'rgba(255,255,255,0.15)', padding: '5px 8px 5px 6px', minWidth: 30, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: line.s === 'Q' ? 'rgba(130,130,200,0.5)' : 'rgba(200,200,200,0.22)', padding: '5px 6px 5px 0', flexShrink: 0 }}>{line.s}</span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: line.r === 0 ? 'rgba(255,255,255,0.42)' : line.r === 3 ? 'rgba(255,200,200,0.75)' : 'rgba(255,255,255,0.6)', padding: '4px 10px 4px 4px', lineHeight: 1.45, flex: 1, minWidth: 0 }}>
+                {line.t}
+              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4px 8px', gap: 2, flexShrink: 0, minWidth: line.r > 0 ? 'auto' : 0 }}>
+                {line.r > 0 && (
+                  <>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.38rem', letterSpacing: '0.08em', color: RISK_GUTTER[line.r], whiteSpace: 'nowrap' }}>{RISK_LABEL[line.r]}</span>
+                    {line.note && <span style={{ fontFamily: 'monospace', fontSize: '0.36rem', color: 'rgba(255,255,255,0.25)', maxWidth: 200, lineHeight: 1.3 }}>{line.note}</span>}
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Minimap */}
+        <div style={{ borderLeft: '1px solid rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'column', padding: '6px 4px', gap: 1 }}>
+          {HEAT_LINES.map((line, i) => (
+            <div key={i} style={{ flex: 1, borderRadius: 1, background: line.r === 0 ? 'rgba(255,255,255,0.07)' : RISK_GUTTER[line.r], opacity: triggered ? (line.r === 0 ? 0.5 : 0.85) : 0, transition: `opacity 0.3s ease ${i * 0.03}s`, boxShadow: line.r === 3 ? `0 0 3px ${RISK_GUTTER[line.r]}80` : 'none' }} />
+          ))}
+        </div>
+      </div>
+      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>
+          {riskCounts[3]} contradiction{riskCounts[3] !== 1 ? 's' : ''} · {riskCounts[2]} inconsistenc{riskCounts[2] !== 1 ? 'ies' : 'y'} · {riskCounts[1]} watch flag{riskCounts[1] !== 1 ? 's' : ''}
+        </span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Every line color-coded in real time</span>
+      </div>
+    </div>
+  )
+}
+
 // ─── DEPOSITION INTELLIGENCE REPORT ──────────────────────────────────────────
 
 const W_METRICS = [
@@ -764,22 +1164,7 @@ export default function Product() {
         <DepoDemo />
       </section>
 
-      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
-        <div className="reveal" style={{ marginBottom: 52 }}>
-          <p className="label" style={{ marginBottom: 18 }}>Post-Deposition Intelligence</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
-            Every deposition.<br/>Scored. Analyzed. Mapped.
-          </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
-            The moment testimony ends, Ithildin builds a complete intelligence report — witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
-          </p>
-        </div>
-      </section>
-
-      <section style={{ padding: '0 52px 80px' }}>
-        <IntelReportDemo />
-      </section>
-
+      {/* ── LIVE: Psych Profile + Heat Map ── */}
       <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Behavioral Intelligence</p>
@@ -791,9 +1176,64 @@ export default function Product() {
           </p>
         </div>
       </section>
-
-      <section style={{ padding: '0 52px 80px' }}>
+      <section style={{ padding: '0 52px 60px' }}>
         <PsychProfileDemo />
+      </section>
+
+      <section style={{ padding: '40px 52px 20px', textAlign: 'center' }}>
+        <div className="reveal" style={{ marginBottom: 48 }}>
+          <p className="label" style={{ marginBottom: 18 }}>Deposition Heat Map</p>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
+            Every line. Color-coded<br/>by risk.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+            A visual transcript where clean testimony is green, inconsistencies are orange, and contradictions glow red. At a glance, see exactly where the deposition got dangerous.
+          </p>
+        </div>
+      </section>
+      <section style={{ padding: '0 52px 80px' }}>
+        <HeatMapDemo />
+      </section>
+
+      {/* ── PRE-DEPOSITION: Timeline + Evidence Web ── */}
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div className="reveal" style={{ marginBottom: 52 }}>
+          <p className="label" style={{ marginBottom: 18 }}>Before You Walk In</p>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
+            The entire case story.<br/>One screen.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+            Upload your documents and Ithildin builds the case timeline and evidence map automatically — gaps, conflicts, and all.
+          </p>
+        </div>
+      </section>
+      <section style={{ padding: '0 52px 48px' }}>
+        <div className="reveal" style={{ marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>Case Timeline</p>
+        </div>
+        <CaseTimelineDemo />
+      </section>
+      <section style={{ padding: '0 52px 80px' }}>
+        <div className="reveal" style={{ marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>Evidence Web</p>
+        </div>
+        <DocWebDemo />
+      </section>
+
+      {/* ── POST-DEPOSITION: Analysis ── */}
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+        <div className="reveal" style={{ marginBottom: 52 }}>
+          <p className="label" style={{ marginBottom: 18 }}>Post-Deposition Intelligence</p>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
+            Every deposition.<br/>Scored. Analyzed. Mapped.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+            The moment testimony ends, Ithildin builds a complete intelligence report — witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
+          </p>
+        </div>
+      </section>
+      <section style={{ padding: '0 52px 80px' }}>
+        <IntelReportDemo />
       </section>
 
       <section style={{ padding: '80px 52px 80px', borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1100, margin: '0 auto' }}>
