@@ -271,6 +271,7 @@ h1, h2, h3, h4 {
   /* Privacy page standard grid */
   .privacy-standard-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
   .privacy-practices-grid { grid-template-columns: 1fr !important; }
+  .privacy-badges-grid { grid-template-columns: repeat(2, 1fr) !important; }
 
   /* Hero */
   .hero-section { padding-top: 120px !important; padding-bottom: 48px !important; }

@@ -146,6 +146,88 @@ export default function Privacy() {
 
       <div className="line" />
 
+      {/* Compliance badges */}
+      <section style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="privacy-badges-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          borderLeft: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          {[
+            {
+              label: 'SOC 2 Type II',
+              href: '#soc2',
+              icon: (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              ),
+            },
+            {
+              label: 'GDPR',
+              href: '#gdpr',
+              icon: (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v4l3 3"/>
+                  <circle cx="12" cy="12" r="1" fill="rgba(255,255,255,0.28)" stroke="none"/>
+                </svg>
+              ),
+            },
+            {
+              label: 'CCPA',
+              href: '#ccpa',
+              icon: (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              ),
+            },
+            {
+              label: 'ISO 27001',
+              href: '#iso27001',
+              icon: (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              ),
+            },
+          ].map((b) => (
+            <div key={b.label} className="reveal" style={{
+              padding: '40px 32px',
+              borderRight: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex', flexDirection: 'column', gap: 20,
+              background: 'rgba(255,255,255,0.012)',
+              transition: 'background 0.25s',
+            }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.012)')}
+            >
+              <div>{b.icon}</div>
+              <p style={{
+                fontFamily: 'var(--font-sans)', fontSize: '0.75rem', fontWeight: 300,
+                color: 'rgba(255,255,255,0.7)', letterSpacing: '0.04em',
+              }}>{b.label}</p>
+              <a href={b.href} style={{
+                fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300,
+                color: 'rgba(255,255,255,0.3)', textDecoration: 'none', letterSpacing: '0.06em',
+                display: 'flex', alignItems: 'center', gap: 4,
+                transition: 'color 0.2s',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(200,169,110,0.85)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+              >
+                Details <span style={{ fontSize: '0.62rem' }}>↗</span>
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Standards */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
         <div style={{ marginBottom: 64 }}>
@@ -161,11 +243,12 @@ export default function Privacy() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {STANDARDS.map((s, i) => (
-            <div key={s.label} className="reveal" style={{
+            <div key={s.label} id={{ 'SOC 2 Type II': 'soc2', 'GDPR': 'gdpr', 'CCPA': 'ccpa', 'ISO 27001': 'iso27001' }[s.label]} className="reveal" style={{
               padding: '48px 0',
               borderTop: '1px solid rgba(255,255,255,0.06)',
               borderBottom: i === STANDARDS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
               transitionDelay: `${i * 0.1}s`,
+              scrollMarginTop: '100px',
             }}>
               <div className="privacy-standard-grid" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 48 }}>
                 <div>
