@@ -29,7 +29,7 @@ export default function Nav() {
         textDecoration: 'none',
         letterSpacing: '0.01em',
       }}>
-        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 56, width: 'auto' }} />
+        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 62, width: 'auto' }} />
         Ithildin
       </Link>
 
