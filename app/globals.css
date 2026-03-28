@@ -216,6 +216,15 @@ h1, h2, h3, h4 {
 @keyframes fadeUpFast { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 @keyframes badgeScroll { from{transform:translateX(0)} to{transform:translateX(-33.333%)} }
+@keyframes stageNumFlicker {
+  0%, 100% { color: rgba(255,255,255,0.12); }
+  92%       { color: rgba(255,255,255,0.12); }
+  93%       { color: rgba(255,255,255,0.85); }
+  94%       { color: rgba(255,255,255,0.2);  }
+  95%       { color: rgba(255,255,255,0.95); }
+  96%       { color: rgba(255,255,255,0.12); }
+}
+
 @keyframes binaryGlow {
   0%, 88%, 91%, 94%, 100% {
     opacity: 1;

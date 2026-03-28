@@ -609,7 +609,7 @@ export default function Home() {
               borderBottom: '1px solid rgba(255,255,255,0.06)',
               transitionDelay: `${i * 0.1}s`,
             }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', color: '#1a1a1a', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 18 }}>{s.n}</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 18, color: 'rgba(255,255,255,0.12)', animation: `stageNumFlicker 4s ease-in-out ${i * 1.3}s infinite` }}>{s.n}</p>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', color: 'var(--white)', marginBottom: 10 }}>{s.title}</h3>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.65 }}>{s.body}</p>
             </div>
@@ -670,10 +670,10 @@ export default function Home() {
             fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em',
             lineHeight: 1, marginBottom: 20,
           }}>
-            Ready to depose<br/>with precision?
+            Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 44 }}>
-            First deposition free. No credit card required.
+            Talk to our team or deploy today.
           </p>
           <EmailCapture />
         </div>
