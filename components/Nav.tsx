@@ -30,7 +30,7 @@ export default function Nav() {
         letterSpacing: '0.01em',
       }}>
         <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 62, width: 'auto' }} />
-        Ithildin
+        <span className="nav-wordmark">Ithildin</span>
       </Link>
 
       {/* Center links */}

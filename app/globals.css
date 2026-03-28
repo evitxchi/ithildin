@@ -246,12 +246,13 @@ h1, h2, h3, h4 {
   .nav-center {
     position: static !important;
     transform: none !important;
-    width: 100%;
-    justify-content: center;
-    order: 3;
-    padding-bottom: 4px;
+    width: auto !important;
+    order: 0 !important;
+    padding: 0 !important;
+    gap: 20px !important;
   }
-  nav { flex-wrap: wrap !important; gap: 0 !important; row-gap: 10px !important; }
+  nav { flex-wrap: nowrap !important; gap: 16px !important; row-gap: 0 !important; }
+  .nav-wordmark { display: none; }
   .binary-logo { display: none; }
   .feat-vis { min-height: 220px; }
 
