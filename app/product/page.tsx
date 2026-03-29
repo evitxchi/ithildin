@@ -1165,6 +1165,7 @@ export default function Product() {
       </section>
 
       {/* ── LIVE: Psych Profile + Heat Map ── */}
+      {/* PsychProfile section hidden — uncomment to restore
       <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Behavioral Intelligence</p>
@@ -1179,6 +1180,7 @@ export default function Product() {
       <section style={{ padding: '0 52px 60px' }}>
         <PsychProfileDemo />
       </section>
+      */}
 
       <section style={{ padding: '40px 52px 20px', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 48 }}>
