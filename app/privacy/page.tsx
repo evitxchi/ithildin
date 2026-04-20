@@ -221,7 +221,7 @@ export default function Privacy() {
                 onMouseEnter={e => (e.currentTarget.style.color = 'rgba(200,169,110,0.85)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
               >
-                Details <span style={{ fontSize: '0.62rem' }}>↗</span>
+                Details <svg style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 2 }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="1" y1="7" x2="7" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><polyline points="3,1 7,1 7,5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </a>
             </div>
           ))}

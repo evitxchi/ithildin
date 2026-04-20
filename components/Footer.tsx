@@ -214,7 +214,7 @@ export default function Footer() {
                 color: 'rgba(140,140,140,0.8)',
                 letterSpacing: '0.04em',
                 fontWeight: 300,
-              }}>Details ↗</span>
+              }}>Details <svg style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 2 }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="1" y1="7" x2="7" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><polyline points="3,1 7,1 7,5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
             </a>
           ))}
         </div>
