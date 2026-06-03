@@ -9,7 +9,7 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState<boolean | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem("theme")
@@ -22,6 +22,11 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     const theme = next ? "dark" : "light"
     document.documentElement.dataset.theme = theme
     localStorage.setItem("theme", theme)
+  }
+
+  // Render a placeholder until we read localStorage — prevents the flash animation on navigation
+  if (isDark === null) {
+    return <div style={{ width: 64, height: 32 }} />
   }
 
   return (

@@ -1,26 +1,22 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { PrivacyFeatures } from '@/components/blocks/features-8'
 
-/* ── LOOPING TYPEWRITER ── */
 function useTypewriterLoop(phrases: string[]) {
   const [text, setText] = useState('')
   useEffect(() => {
     let pi = 0, ci = 0, deleting = false, paused = false
     let t: NodeJS.Timeout
-
     function step() {
       const phrase = phrases[pi]
       if (paused) { paused = false; deleting = true; t = setTimeout(step, 100); return }
       if (!deleting) {
         if (ci < phrase.length) {
           setText(phrase.slice(0, ++ci))
-          const speed = 65 + Math.random() * 45 + (phrase[ci - 1] === ' ' ? 25 : 0)
-          t = setTimeout(step, speed)
-        } else {
-          paused = true; t = setTimeout(step, 1600)
-        }
+          t = setTimeout(step, 65 + Math.random() * 45 + (phrase[ci - 1] === ' ' ? 25 : 0))
+        } else { paused = true; t = setTimeout(step, 1600) }
       } else {
         if (ci > 0) { setText(phrase.slice(0, --ci)); t = setTimeout(step, 25 + Math.random() * 15) }
         else { deleting = false; pi = (pi + 1) % phrases.length; t = setTimeout(step, 200) }
@@ -32,7 +28,6 @@ function useTypewriterLoop(phrases: string[]) {
   return text
 }
 
-/* ── SCROLL REVEAL ── */
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('.reveal')
@@ -120,14 +115,13 @@ const PRACTICES = [
 export default function Privacy() {
   useReveal()
   const hero = useTypewriterLoop(['Your data, protected.', 'Your clients, protected.', 'Your cases, protected.'])
-  const frameworks = useTypewriterLoop(['Four frameworks. One commitment.'])
 
   return (
     <main style={{ background: 'var(--bg)' }}>
       <Nav />
 
       {/* Hero */}
-      <section style={{ padding: '160px 52px 80px', maxWidth: 860, margin: '0 auto' }}>
+      <section style={{ padding: '160px 52px 72px', maxWidth: 860, margin: '0 auto' }}>
         <p className="label" style={{ marginBottom: 18 }}>Security & Compliance</p>
         <h1 style={{
           fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.8rem, 6vw, 5rem)',
@@ -138,95 +132,16 @@ export default function Privacy() {
         </h1>
         <p className="reveal" style={{
           fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
-          color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, maxWidth: 520,
+          color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: 520,
         }}>
           Ithildin is built for the legal industry — where confidentiality is non-negotiable. Every system, control, and audit exists to protect your clients' most sensitive information.
         </p>
       </section>
 
-      <div className="line" />
+      {/* Bento Grid */}
+      <PrivacyFeatures />
 
-      {/* Compliance badges */}
-      <section style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="privacy-badges-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
-        }}>
-          {[
-            {
-              label: 'SOC 2 Type II',
-              href: '#soc2',
-              icon: (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  <polyline points="9 12 11 14 15 10"/>
-                </svg>
-              ),
-            },
-            {
-              label: 'GDPR',
-              href: '#gdpr',
-              icon: (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 8v4l3 3"/>
-                  <circle cx="12" cy="12" r="1" fill="rgba(255,255,255,0.28)" stroke="none"/>
-                </svg>
-              ),
-            },
-            {
-              label: 'CCPA',
-              href: '#ccpa',
-              icon: (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              ),
-            },
-            {
-              label: 'ISO 27001',
-              href: '#iso27001',
-              icon: (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="2" y1="12" x2="22" y2="12"/>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-              ),
-            },
-          ].map((b) => (
-            <div key={b.label} className="reveal" style={{
-              padding: '40px 32px',
-              borderRight: '1px solid rgba(255,255,255,0.06)',
-              display: 'flex', flexDirection: 'column', gap: 20,
-              background: 'rgba(255,255,255,0.012)',
-              transition: 'background 0.25s',
-            }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.012)')}
-            >
-              <div>{b.icon}</div>
-              <p style={{
-                fontFamily: 'var(--font-sans)', fontSize: '0.75rem', fontWeight: 300,
-                color: 'rgba(255,255,255,0.7)', letterSpacing: '0.04em',
-              }}>{b.label}</p>
-              <a href={b.href} style={{
-                fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300,
-                color: 'rgba(255,255,255,0.3)', textDecoration: 'none', letterSpacing: '0.06em',
-                display: 'flex', alignItems: 'center', gap: 4,
-                transition: 'color 0.2s',
-              }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(200,169,110,0.85)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
-              >
-                Details <svg style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 2 }} width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="1" y1="7" x2="7" y2="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><polyline points="3,1 7,1 7,5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className="line" />
 
       {/* Standards */}
       <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
@@ -235,18 +150,16 @@ export default function Privacy() {
           <h2 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
             fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em',
-            lineHeight: 1.05, minHeight: '1.1em',
-          }}>
-            {frameworks}<span className="cursor-blink" />
-          </h2>
+            lineHeight: 1.05,
+          }}>Four frameworks. One commitment.</h2>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {STANDARDS.map((s, i) => (
             <div key={s.label} id={{ 'SOC 2 Type II': 'soc2', 'GDPR': 'gdpr', 'CCPA': 'ccpa', 'ISO 27001': 'iso27001' }[s.label]} className="reveal" style={{
               padding: '48px 0',
-              borderTop: '1px solid rgba(255,255,255,0.06)',
-              borderBottom: i === STANDARDS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+              borderTop: '1px solid var(--border)',
+              borderBottom: i === STANDARDS.length - 1 ? '1px solid var(--border)' : 'none',
               transitionDelay: `${i * 0.1}s`,
               scrollMarginTop: '100px',
             }}>
@@ -266,7 +179,7 @@ export default function Privacy() {
                   {s.body.map((p, j) => (
                     <p key={j} style={{
                       fontFamily: 'var(--font-sans)', fontSize: '0.82rem', fontWeight: 300,
-                      color: 'rgba(255,255,255,0.62)', lineHeight: 1.75,
+                      color: 'var(--text-muted)', lineHeight: 1.75,
                       marginBottom: j < s.body.length - 1 ? 14 : 24,
                     }}>{p}</p>
                   ))}
@@ -276,7 +189,7 @@ export default function Privacy() {
                         <span style={{ color: 'rgba(200,169,110,0.6)', marginTop: 2, flexShrink: 0 }}>—</span>
                         <span style={{
                           fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
-                          color: 'rgba(255,255,255,0.55)', lineHeight: 1.6,
+                          color: 'var(--text-muted)', lineHeight: 1.6,
                         }}>{d}</span>
                       </li>
                     ))}
@@ -301,14 +214,14 @@ export default function Privacy() {
         </div>
         <div className="privacy-practices-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
+          borderTop: '1px solid var(--border)',
+          borderLeft: '1px solid var(--border)',
         }}>
           {PRACTICES.map((p, i) => (
             <div key={p.title} className="reveal" style={{
               padding: '32px 28px',
-              borderRight: '1px solid rgba(255,255,255,0.06)',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              borderRight: '1px solid var(--border)',
+              borderBottom: '1px solid var(--border)',
               transitionDelay: `${i * 0.08}s`,
             }}>
               <h4 style={{
@@ -317,7 +230,7 @@ export default function Privacy() {
               }}>{p.title}</h4>
               <p style={{
                 fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
-                color: 'rgba(255,255,255,0.55)', lineHeight: 1.7,
+                color: 'var(--text-muted)', lineHeight: 1.7,
               }}>{p.body}</p>
             </div>
           ))}
@@ -335,7 +248,7 @@ export default function Privacy() {
           }}>Questions about privacy?</h2>
           <p style={{
             fontFamily: 'var(--font-sans)', fontSize: '0.82rem', fontWeight: 300,
-            color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, marginBottom: 32,
+            color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 32,
           }}>
             Our security team is available to answer questions, provide compliance documentation, or arrange a security review for enterprise clients.
           </p>
