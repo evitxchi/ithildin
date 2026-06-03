@@ -55,8 +55,11 @@ function BinaryLogo() {
       lastEl.current.style.color = ''
     }
     const el = e.currentTarget
-    el.style.textShadow = '0 0 2px #fff, 0 0 8px #fff, 0 0 20px #fff, 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.7), 0 0 200px rgba(255,255,255,0.4)'
-    el.style.color = '#fff'
+    const isLight = document.documentElement.dataset.theme === 'light'
+    el.style.textShadow = isLight
+      ? '0 0 2px #000, 0 0 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)'
+      : '0 0 2px #fff, 0 0 8px #fff, 0 0 20px #fff, 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.7), 0 0 200px rgba(255,255,255,0.4)'
+    el.style.color = isLight ? '#000' : '#fff'
     lastEl.current = el
   }, [])
 
@@ -71,11 +74,11 @@ function BinaryLogo() {
 
   return (
     <div className="binary-logo" style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
-      <pre style={{
+      <pre className="binary-logo-text" style={{
         fontFamily: '"Courier New", Courier, monospace',
         fontSize: '0.72rem',
         lineHeight: 1.4,
-        color: 'rgba(255,255,255,0.92)',
+        color: 'var(--binary-logo-color)',
         letterSpacing: '0.04em',
         whiteSpace: 'pre',
         userSelect: 'none',
