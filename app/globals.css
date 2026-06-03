@@ -50,7 +50,7 @@
   --silver: #333333;
   --bg-nav-scrolled: rgba(245,242,238,0.93);
   --border-nav-scrolled: rgba(0,0,0,0.1);
-  --feat-vis-bg: #080808;
+  --feat-vis-bg: #ece9e3;
   --binary-logo-color: rgba(0,0,0,0.72);
   --binary-logo-hover: #000000;
   --card: #ece9e3;
@@ -279,7 +279,35 @@ h1, h2, h3, h4 {
 
 [data-theme="light"] .stage-num { animation-name: stageNumFlickerLight !important; }
 [data-theme="light"] .hero-halo { display: none; }
-[data-theme="light"] .hero-shader { display: none; }
+
+/* Hero text is always on a dark shader bg — keep it white in both modes */
+.hero-section-label { color: rgba(255,255,255,0.62) !important; }
+
+/* DisplayCards gradient fade — matches page background */
+.display-card-fade::after {
+  content: '';
+  position: absolute;
+  right: -4px; top: -5%;
+  height: 110%; width: 20rem;
+  background: linear-gradient(to left, var(--bg), transparent);
+  pointer-events: none;
+}
+/* Grayscale overlay for stacked background cards */
+.display-card-bg {
+  filter: grayscale(100%);
+  transition: filter 0.7s;
+}
+.display-card-bg::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: var(--bg);
+  opacity: 0.5;
+  transition: opacity 0.7s;
+  pointer-events: none;
+}
+.display-card-bg:hover { filter: grayscale(0%); }
+.display-card-bg:hover::before { opacity: 0; }
 .hero-scroll-line {
   width: 1px; height: 48px;
   background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);

@@ -103,14 +103,12 @@ const STANDARDS = [
   },
 ]
 
-const PRACTICES = [
-  { title: 'Zero retention', body: 'Deposition content is never retained beyond your active session unless you explicitly export it. We do not train models on client data.' },
-  { title: 'Encryption everywhere', body: 'All data is encrypted at rest with AES-256 and in transit with TLS 1.3. Encryption keys are managed with strict access controls.' },
-  { title: 'Access controls', body: 'Role-based permissions limit data access to only those who need it. All access is logged, audited, and anomaly-detected.' },
-  { title: 'Audit logging', body: 'Every data access event is logged with user identity, timestamp, and action. Logs are tamper-evident and retained for 12 months.' },
-  { title: 'Penetration testing', body: 'External penetration tests are conducted at least annually by independent security firms. Critical findings are remediated within 30 days.' },
-  { title: 'Vulnerability management', body: 'Automated scanning runs continuously across our infrastructure. We maintain a formal vulnerability disclosure program.' },
-]
+const LABEL_TO_ID: Record<string, string> = {
+  'SOC 2 Type II': 'soc2',
+  'GDPR': 'gdpr',
+  'CCPA': 'ccpa',
+  'ISO 27001': 'iso27001',
+}
 
 export default function Privacy() {
   useReveal()
@@ -156,7 +154,7 @@ export default function Privacy() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {STANDARDS.map((s, i) => (
-            <div key={s.label} id={{ 'SOC 2 Type II': 'soc2', 'GDPR': 'gdpr', 'CCPA': 'ccpa', 'ISO 27001': 'iso27001' }[s.label]} className="reveal" style={{
+            <div key={s.label} id={LABEL_TO_ID[s.label]} className="reveal" style={{
               padding: '48px 0',
               borderTop: '1px solid var(--border)',
               borderBottom: i === STANDARDS.length - 1 ? '1px solid var(--border)' : 'none',
@@ -183,55 +181,20 @@ export default function Privacy() {
                       marginBottom: j < s.body.length - 1 ? 14 : 24,
                     }}>{p}</p>
                   ))}
-                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {s.details.map((d, j) => (
-                      <li key={j} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <span style={{ color: 'rgba(200,169,110,0.6)', marginTop: 2, flexShrink: 0 }}>—</span>
-                        <span style={{
-                          fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
-                          color: 'var(--text-muted)', lineHeight: 1.6,
-                        }}>{d}</span>
-                      </li>
+                      <span key={j} style={{
+                        fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 300,
+                        color: 'var(--text-muted)',
+                        padding: '5px 14px',
+                        border: '1px solid var(--border)',
+                        borderRadius: 100,
+                        lineHeight: 1.4,
+                      }}>{d}</span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="line" />
-
-      {/* Data Practices */}
-      <section style={{ maxWidth: 860, margin: '0 auto', padding: '80px 52px' }}>
-        <div className="reveal" style={{ marginBottom: 56 }}>
-          <p className="label" style={{ marginBottom: 16 }}>Data Practices</p>
-          <h2 style={{
-            fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
-            fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05,
-          }}>How we handle your data.</h2>
-        </div>
-        <div className="privacy-practices-grid" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-          borderTop: '1px solid var(--border)',
-          borderLeft: '1px solid var(--border)',
-        }}>
-          {PRACTICES.map((p, i) => (
-            <div key={p.title} className="reveal" style={{
-              padding: '32px 28px',
-              borderRight: '1px solid var(--border)',
-              borderBottom: '1px solid var(--border)',
-              transitionDelay: `${i * 0.08}s`,
-            }}>
-              <h4 style={{
-                fontFamily: 'var(--font-serif)', fontSize: '1.05rem',
-                color: 'var(--white)', marginBottom: 10,
-              }}>{p.title}</h4>
-              <p style={{
-                fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
-                color: 'var(--text-muted)', lineHeight: 1.7,
-              }}>{p.body}</p>
             </div>
           ))}
         </div>

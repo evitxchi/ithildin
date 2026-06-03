@@ -9,6 +9,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        background: 'var(--bg)',
         card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
         foreground: 'var(--text)',
         border: 'var(--border)',
