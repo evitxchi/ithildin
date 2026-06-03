@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { ShaderAnimation } from '@/components/ui/shader-animation'
+import { FloatingPaths } from '@/components/ui/background-paths'
 import DisplayCards from '@/components/ui/display-cards'
 import { FileSearch, Zap, FileText } from 'lucide-react'
 
@@ -437,10 +438,19 @@ export default function Home() {
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
         padding: '0 52px', position: 'relative', overflow: 'hidden',
       }}>
-        {/* Shader background — always visible in both modes */}
-        <div className="hero-shader" style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          <ShaderAnimation />
-        </div>
+        {/* Dark mode: shader animation */}
+        {theme === 'dark' && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+            <ShaderAnimation />
+          </div>
+        )}
+        {/* Light mode: floating paths on beige */}
+        {theme === 'light' && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
+            <FloatingPaths position={1} />
+            <FloatingPaths position={-1} />
+          </div>
+        )}
         {/* Dark halo — only in dark mode */}
         <div className="hero-halo" style={{
           position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -55%)',
