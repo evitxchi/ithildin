@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import { ShaderAnimation } from '@/components/ui/shader-animation'
 import { FloatingPaths } from '@/components/ui/background-paths'
 import DisplayCards from '@/components/ui/display-cards'
+import { Component as SkyDeckBadge } from '@/components/ui/backed-by-yc'
 import { FileSearch, Zap, FileText } from 'lucide-react'
 
 /* ── THEME HOOK ── */
@@ -472,6 +473,7 @@ export default function Home() {
           </p>
           <EmailCapture />
           <p style={{ marginTop: 14, fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 300, letterSpacing: '0.05em', color: theme === 'light' ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.5)' }}>Currently in private beta</p>
+          <SkyDeckBadge />
         </div>
         <div style={{ position: 'absolute', bottom: 44, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="hero-scroll-line" />
