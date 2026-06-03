@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { ShaderAnimation } from '@/components/ui/shader-animation'
 
 /* ── TYPEWRITER ── */
 function useTypewriter(phrases: string[]) {
@@ -51,7 +52,6 @@ function useReveal() {
 function VisUpload({ active }: { active: boolean }) {
   const [scanY, setScanY] = useState(0)
   const [aiVisible, setAiVisible] = useState(false)
-  const animRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     if (!active) return
@@ -91,9 +91,7 @@ function VisUpload({ active }: { active: boolean }) {
           <rect x={71 + i*60} y="103" width="18" height="1.5" rx="1" fill="rgba(255,255,255,0.06)"/>
         </g>
       ))}
-      {/* scan line */}
       <rect x="40" y={78 + scanY} width="200" height="1.5" fill="rgba(200,169,110,0.3)"/>
-      {/* AI output */}
       <rect x="80" y="152" width="120" height="20" rx="3"
         fill="rgba(200,169,110,0.06)" stroke="rgba(200,169,110,0.18)" strokeWidth="1"
         opacity={aiVisible ? 1 : 0} style={{ transition: 'opacity 0.4s ease' }}/>
@@ -407,8 +405,8 @@ function FeatSection({
   const text = (
     <div style={{
       padding: '60px 52px', display: 'flex', flexDirection: 'column', justifyContent: 'center',
-      borderRight: reverse ? 'none' : '1px solid rgba(255,255,255,0.06)',
-      borderLeft: reverse ? '1px solid rgba(255,255,255,0.06)' : 'none',
+      borderRight: reverse ? 'none' : '1px solid var(--border)',
+      borderLeft: reverse ? '1px solid var(--border)' : 'none',
     }}>
       <span className="feat-tag">{tag}</span>
       <h3 className="feat-title">{title}</h3>
@@ -421,84 +419,9 @@ function FeatSection({
   )
 
   return (
-    <div ref={ref} className="feat-section reveal" id={id}
-      style={{ direction: 'ltr' }}>
+    <div ref={ref} className="feat-section reveal" id={id} style={{ direction: 'ltr' }}>
       {reverse ? <>{visual}{text}</> : <>{text}{visual}</>}
     </div>
-  )
-}
-
-
-/* ── BEAD WAVE ── */
-function BeadWave() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // non-null aliases for use inside closures
-    const cvs = canvas as HTMLCanvasElement
-    const c2d = ctx as CanvasRenderingContext2D
-
-    const ROWS = 22, COLS = 30
-    let t = 0, animId: number, W = 0, H = 0
-
-    function resize() {
-      const dpr = window.devicePixelRatio || 1
-      const rect = cvs.getBoundingClientRect()
-      W = rect.width; H = rect.height
-      cvs.width = W * dpr; cvs.height = H * dpr
-      c2d.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-
-    resize()
-    window.addEventListener('resize', resize)
-
-    function draw() {
-      c2d.clearRect(0, 0, W, H)
-      const cx = W / 2
-
-      for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-          const nx = col / (COLS - 1) - 0.5
-          const ny = row / (ROWS - 1)
-
-          const p = 0.18 + ny * 0.82
-
-          const wave =
-            Math.sin(nx * 5.5 + ny * 4.2 - t * 1.6) * 0.42 +
-            Math.sin(nx * 2.8 - ny * 3.1 - t * 0.9) * 0.18
-
-          const sx = cx + nx * W * 1.05 * p
-          const sy = H * 0.06 + ny * H * 0.88 - wave * H * 0.13 * p
-
-          const norm = Math.max(0, Math.min(1, (wave + 0.6) / 1.2))
-          const alpha = 0.05 + norm * 0.62
-          const r = Math.max(0.4, (0.7 + norm * 3.2) * p)
-
-          c2d.beginPath()
-          c2d.arc(sx, sy, r, 0, Math.PI * 2)
-          c2d.fillStyle = `rgba(255,255,255,${Math.min(0.78, alpha).toFixed(2)})`
-          c2d.fill()
-        }
-      }
-
-      t += 0.012
-      animId = requestAnimationFrame(draw)
-    }
-
-    animId = requestAnimationFrame(draw)
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize) }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}
-    />
   )
 }
 
@@ -511,7 +434,7 @@ function EmailCapture() {
     setSubmitted(true)
   }
   if (submitted) return (
-    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: '#2e2e2e', letterSpacing: '0.03em' }}>
+    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text)', letterSpacing: '0.03em' }}>
       You're on the list. We'll be in touch.
     </p>
   )
@@ -545,8 +468,12 @@ export default function Home() {
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
         padding: '0 52px', position: 'relative', overflow: 'hidden',
       }}>
-        <BeadWave />
-        <div style={{
+        {/* Shader background — hidden in light mode */}
+        <div className="hero-shader" style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+          <ShaderAnimation />
+        </div>
+        {/* Dark halo — hidden in light mode */}
+        <div className="hero-halo" style={{
           position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -55%)',
           width: 600, height: 400,
           background: 'radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 70%)',
@@ -563,21 +490,21 @@ export default function Home() {
           </h1>
           <p style={{
             fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
-            color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, marginBottom: 40, maxWidth: 320,
+            color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 40, maxWidth: 320,
           }}>
             Upload your case files.<br />Depose with real-time AI intelligence.<br />Contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.
           </p>
           <EmailCapture />
           <p style={{
             marginTop: 14, fontFamily: 'var(--font-sans)', fontSize: '0.65rem',
-            fontWeight: 300, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em',
+            fontWeight: 300, color: 'var(--text-dim)', letterSpacing: '0.05em',
           }}>Currently in private beta</p>
         </div>
         <div style={{
           position: 'absolute', bottom: 44, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
         }}>
-          <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)' }}/>
+          <div className="hero-scroll-line" />
         </div>
       </section>
 
@@ -595,8 +522,8 @@ export default function Home() {
         </div>
         <div className="stages-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(3,1fr)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
+          borderTop: '1px solid var(--border)',
+          borderLeft: '1px solid var(--border)',
         }}>
           {[
             { n: '01', title: 'Prepare', body: 'AI case analysis. Deposition outlines. Exhibit management — before you walk in.' },
@@ -605,11 +532,11 @@ export default function Home() {
           ].map((s, i) => (
             <div key={s.n} className="reveal" style={{
               padding: '40px 32px',
-              borderRight: '1px solid rgba(255,255,255,0.06)',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              borderRight: '1px solid var(--border)',
+              borderBottom: '1px solid var(--border)',
               transitionDelay: `${i * 0.1}s`,
             }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 18, color: 'rgba(255,255,255,0.12)', animation: `stageNumFlicker 4s ease-in-out ${i * 1.3}s infinite` }}>{s.n}</p>
+              <p className="stage-num" style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 18, color: 'rgba(255,255,255,0.12)', animation: `stageNumFlicker 4s ease-in-out ${i * 1.3}s infinite` }}>{s.n}</p>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', color: 'var(--white)', marginBottom: 10 }}>{s.title}</h3>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.65 }}>{s.body}</p>
             </div>
@@ -618,7 +545,7 @@ export default function Home() {
       </section>
 
       {/* ── ANIMATED FEATURE SECTIONS ── */}
-      <section style={{ maxWidth: 1100, margin: '72px auto 0', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <section style={{ maxWidth: 1100, margin: '72px auto 0', borderTop: '1px solid var(--border)' }}>
         <div className="reveal" style={{ padding: '60px 52px 0' }}>
           <p className="label" style={{ marginBottom: 18 }}>Capabilities</p>
           <h2 style={{
@@ -629,7 +556,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', borderTop: '1px solid var(--border)' }}>
         <FeatSection id="f1" tag="Preparation" title="Case Analysis"
           body="Upload case files, prior depositions, and exhibits. Ithildin ingests and cross-references everything — surfacing the insights that matter before you walk in."
           vis={(a) => <VisUpload active={a} />}
@@ -655,7 +582,7 @@ export default function Home() {
       {/* ── CTA ── */}
       <section style={{
         padding: '160px 52px', textAlign: 'center',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
+        borderTop: '1px solid var(--border)',
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{
@@ -672,7 +599,7 @@ export default function Home() {
           }}>
             Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 44 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-muted)', marginBottom: 44 }}>
             Talk to our team or deploy today.
           </p>
           <EmailCapture />

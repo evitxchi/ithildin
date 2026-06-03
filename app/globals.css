@@ -43,12 +43,12 @@
   --border-mid: rgba(0,0,0,0.14);
   --text: #2c2c2c;
   --text-muted: rgba(0,0,0,0.55);
-  --text-dim: rgba(0,0,0,0.45);
+  --text-dim: rgba(0,0,0,0.4);
   --white: #111111;
   --silver: #333333;
   --bg-nav-scrolled: rgba(245,242,238,0.93);
   --border-nav-scrolled: rgba(0,0,0,0.08);
-  --feat-vis-bg: #e0ddd8;
+  --feat-vis-bg: #080808;
   --binary-logo-color: rgba(0,0,0,0.72);
   --binary-logo-hover: #000000;
 }
@@ -262,6 +262,26 @@ h1, h2, h3, h4 {
   94%       { color: rgba(255,255,255,0.2);  }
   95%       { color: rgba(255,255,255,0.95); }
   96%       { color: rgba(255,255,255,0.12); }
+}
+
+@keyframes stageNumFlickerLight {
+  0%, 100% { color: rgba(0,0,0,0.1); }
+  92%       { color: rgba(0,0,0,0.1); }
+  93%       { color: rgba(0,0,0,0.7); }
+  94%       { color: rgba(0,0,0,0.15); }
+  95%       { color: rgba(0,0,0,0.8); }
+  96%       { color: rgba(0,0,0,0.1); }
+}
+
+[data-theme="light"] .stage-num { animation-name: stageNumFlickerLight !important; }
+[data-theme="light"] .hero-halo { display: none; }
+[data-theme="light"] .hero-shader { display: none; }
+.hero-scroll-line {
+  width: 1px; height: 48px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+}
+[data-theme="light"] .hero-scroll-line {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent);
 }
 
 @keyframes binaryGlow {
