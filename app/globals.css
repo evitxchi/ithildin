@@ -280,9 +280,6 @@ h1, h2, h3, h4 {
 [data-theme="light"] .stage-num { animation-name: stageNumFlickerLight !important; }
 [data-theme="light"] .hero-halo { display: none; }
 
-/* Hero text is always on a dark shader bg — keep it white in both modes */
-.hero-section-label { color: rgba(255,255,255,0.62) !important; }
-
 /* DisplayCards gradient fade — matches page background */
 .display-card-fade::after {
   content: '';

@@ -449,20 +449,19 @@ export default function Home() {
           pointerEvents: 'none', zIndex: 2,
         }}/>
         <div style={{ position: 'relative', zIndex: 3, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {/* Hero text always white — shader provides dark bg */}
-          <p className="label hero-section-label" style={{ marginBottom: 28 }}>AI Deposition Intelligence</p>
+          <p className="label" style={{ marginBottom: 28 }}>AI Deposition Intelligence</p>
           <h1 style={{
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.2rem, 7.5vw, 6rem)',
             fontWeight: 400, lineHeight: 0.93, letterSpacing: '-0.025em',
-            color: '#f2f2f2', marginBottom: 28, minHeight: '1.05em',
+            color: theme === 'light' ? '#111111' : '#f2f2f2', marginBottom: 28, minHeight: '1.05em',
           }}>
             {typed}<span className="cursor-blink"/>
           </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300, color: 'rgba(255,255,255,0.78)', lineHeight: 1.7, marginBottom: 40, maxWidth: 320 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300, lineHeight: 1.7, marginBottom: 40, maxWidth: 320, color: theme === 'light' ? 'rgba(0,0,0,0.68)' : 'rgba(255,255,255,0.78)' }}>
             Upload your case files.<br />Depose with real-time AI intelligence.<br />Contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.
           </p>
           <EmailCapture />
-          <p style={{ marginTop: 14, fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em' }}>Currently in private beta</p>
+          <p style={{ marginTop: 14, fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 300, letterSpacing: '0.05em', color: theme === 'light' ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.5)' }}>Currently in private beta</p>
         </div>
         <div style={{ position: 'absolute', bottom: 44, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="hero-scroll-line" />
@@ -477,7 +476,7 @@ export default function Home() {
           <p className="label" style={{ marginBottom: 18 }}>The Platform</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>Intelligence at every stage</h2>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 80px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 180px' }}>
           <DisplayCards cards={STAGE_CARDS} />
         </div>
       </section>

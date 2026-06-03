@@ -44,7 +44,9 @@ export function ShaderAnimation() {
           }
         }
 
-        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+        // Alpha from brightness — black becomes transparent, rings stay opaque
+        float alpha = min(1.0, (color[0] + color[1] + color[2]) * 2.0);
+        gl_FragColor = vec4(color[0],color[1],color[2],alpha);
       }
     `
 
@@ -63,12 +65,14 @@ export function ShaderAnimation() {
       uniforms,
       vertexShader,
       fragmentShader,
+      transparent: true,
     })
 
     const mesh = new THREE.Mesh(geometry, material)
     scene.add(mesh)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    renderer.setClearColor(0x000000, 0)
     renderer.setPixelRatio(window.devicePixelRatio)
 
     container.appendChild(renderer.domElement)
@@ -112,7 +116,7 @@ export function ShaderAnimation() {
   return (
     <div
       ref={containerRef}
-      style={{ width: "100%", height: "100%", background: "#000", overflow: "hidden" }}
+      style={{ width: "100%", height: "100%", background: "transparent", overflow: "hidden" }}
     />
   )
 }
