@@ -39,6 +39,7 @@ export default function Nav() {
       <div className="nav-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 36 }}>
         {[
           { label: 'Product', href: '/product' },
+          { label: 'Mission', href: '/mission' },
           { label: 'Privacy', href: '/privacy' },
         ].map(item => (
           <Link key={item.label} href={item.href} className="nav-link">
