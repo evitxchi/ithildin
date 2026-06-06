@@ -70,7 +70,7 @@ export default function Mission() {
           that proves it can be done responsibly.
         </p>
 
-        {/* 1% pull quote — no em dash */}
+        {/* Revenue commitment pull quote — no em dash */}
         <blockquote style={{
           margin: '0 0 64px',
           padding: '2px 0 2px 32px',
@@ -91,8 +91,8 @@ export default function Mission() {
               fontWeight: 400,
               color: 'var(--accent)',
               letterSpacing: '-0.01em',
-            }}>1%</span>
-            {' '}of our revenue back to improving the legal system as a whole, funding legal aid,
+            }}>a percentage of our revenue</span>
+            {' '}back to improving the legal system as a whole, funding legal aid,
             expanding access to justice, and supporting the institutions that keep law equitable,
             because we see that not as charity, but as the clearest signal of what we actually
             stand for.
