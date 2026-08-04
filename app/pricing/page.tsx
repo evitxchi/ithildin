@@ -31,15 +31,15 @@ const PLANS = [
   {
     name: 'Enterprise', seats: 'Unlimited', desc: 'For large firms.',
     price: null,
-    features: ['Everything in Firm','Multi-case pattern recognition','Rule 30(b)(6) outline generation','Custom AI on your case history','SSO / SAML','SOC 2 II review','Custom contracts & DPA','Dedicated success manager','SLA guarantee'],
+    features: ['Everything in Firm','Multi-case pattern recognition','Rule 30(b)(6) outline generation','Custom AI on your case history','SSO / SAML','Security review','Custom contracts & DPA','Dedicated success manager','SLA guarantee'],
     cta: 'Contact Sales', highlight: false,
   },
 ]
 
 const FAQ = [
-  { q: 'What happens after the free trial?', a: 'Your first deposition is free — no card required. After that, a 14-day free trial of the Firm plan begins. Cancel any time.' },
-  { q: 'How is client data protected?', a: 'Ithildin is SOC 2 Type II certified, ISO 27001 compliant, GDPR and CCPA ready. All data is encrypted in transit and at rest. DPAs available on request.' },
-  { q: 'How does real-time transcription work?', a: 'Ithildin connects to your audio feed — local microphone, Zoom, or court reporter feed — with automatic speaker attribution and page:line stamping.' },
+  { q: 'What happens after the free trial?', a: 'Your first deposition is free. No card required. After that, a 14-day free trial of the Firm plan begins. Cancel any time.' },
+  { q: 'How is client data protected?', a: 'Ithildin is ISO 27001 aligned, GDPR and CCPA ready. All data is encrypted in transit and at rest. DPAs available on request.' },
+  { q: 'How does real-time transcription work?', a: 'Ithildin connects to your audio feed, whether local microphone, Zoom, or court reporter feed, with automatic speaker attribution and page:line stamping.' },
   { q: 'Is annual billing available?', a: 'Yes. Annual billing saves approximately 20%. Select it during signup or contact us to switch.' },
   { q: 'Which integrations are included?', a: 'Firm and Enterprise plans include Clio, PracticePanther, MyCase, and Smokeball. Additional integrations available on request.' },
 ]
@@ -65,10 +65,10 @@ export default function Pricing() {
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 28 }}>
           First deposition free. Cancel any time.
         </p>
-        <div style={{ display: 'inline-flex', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 100, padding: 3, gap: 3 }}>
+        <div style={{ display: 'inline-flex', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 5, padding: 3, gap: 3 }}>
           {(['monthly','annual'] as const).map(b => (
             <button key={b} onClick={() => setBilling(b)} style={{
-              padding: '6px 20px', borderRadius: 100,
+              padding: '6px 20px', borderRadius: 3,
               background: billing === b ? 'rgba(255,255,255,0.07)' : 'transparent',
               color: billing === b ? 'var(--white)' : 'rgba(255,255,255,0.3)',
               border: 'none', cursor: 'pointer',
@@ -133,7 +133,7 @@ export default function Pricing() {
 
               {plan.features.map((f, j) => (
                 <div key={j} style={{ display: 'flex', gap: 10, marginBottom: 11 }}>
-                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', marginTop: 2, flexShrink: 0 }}>—</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', marginTop: 2, flexShrink: 0 }}>·</span>
                   <p style={{
                     fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
                     color: j === 0 && i > 0 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.55)',

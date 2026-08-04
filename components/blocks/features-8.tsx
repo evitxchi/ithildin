@@ -23,7 +23,7 @@ export function PrivacyFeatures() {
                   <span style={{ fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 400, color: 'var(--white)', position: 'relative', zIndex: 1 }}>0%</span>
                 </div>
                 <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: 'var(--white)', marginBottom: 8 }}>Data Training</h2>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.6 }}>Your case data never trains our models — ever.</p>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.6 }}>Your case data never trains our models. Ever.</p>
               </CardContent>
             </Card>
 
@@ -93,7 +93,7 @@ export function PrivacyFeatures() {
                   </div>
                   <div>
                     <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', color: 'var(--white)', marginBottom: 8 }}>Attorney-Client Privilege Protected</h2>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.76rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.65 }}>Your deposition content is confidential by design. We act as a data processor — your firm remains in control.</p>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.76rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.65 }}>Your deposition content is confidential by design. We act as a data processor. Your firm remains in control.</p>
                   </div>
                 </div>
                 <div style={{
@@ -108,7 +108,7 @@ export function PrivacyFeatures() {
                     {[0,1,2].map(i => <span key={i} style={{ display: 'block', width: 8, height: 8, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--border)' }}/>)}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
-                    {['SOC 2 Type II', 'GDPR Compliant', 'CCPA Ready', 'ISO 27001 Aligned'].map(item => (
+                    {['GDPR Compliant', 'CCPA Ready', 'ISO 27001 Aligned'].map(item => (
                       <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                           <circle cx="5" cy="5" r="4" stroke="var(--accent)" strokeWidth="0.8"/>

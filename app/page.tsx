@@ -1,12 +1,30 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { ShaderAnimation } from '@/components/ui/shader-animation'
-import { FloatingPaths } from '@/components/ui/background-paths'
 import DisplayCards from '@/components/ui/display-cards'
 import { Component as SkyDeckBadge } from '@/components/ui/backed-by-yc'
 import { FileSearch, Zap, FileText } from 'lucide-react'
+
+/* ── HERO BACKGROUND MEDIA ──
+   Drop a file into /public and point this at it. Nothing else needs to change:
+     image → { type: 'image', src: '/hero.jpg' }
+     video → { type: 'video', src: '/hero.mp4', poster: '/hero-poster.jpg' }
+   While type is 'none' the hero sits on the page background and the copy stays
+   theme-aware. As soon as media is set, the scrim turns on and the copy locks to
+   light so it holds over any footage. */
+const HERO_MEDIA: { type: 'none' | 'image' | 'video'; src: string; poster?: string } = {
+  type: 'none',
+  src: '',
+}
+
+const heroMediaStyle: React.CSSProperties = {
+  position: 'absolute', inset: 0, zIndex: 0,
+  width: '100%', height: '100%',
+  objectFit: 'cover', objectPosition: 'center',
+  pointerEvents: 'none',
+}
 
 /* ── THEME HOOK ── */
 function useTheme() {
@@ -45,35 +63,6 @@ const STAGE_CARDS = [
     className: '[grid-area:stack] translate-x-32 translate-y-20 hover:translate-y-10',
   },
 ]
-
-/* ── TYPEWRITER ── */
-function useTypewriter(phrases: string[]) {
-  const [text, setText] = useState('')
-  useEffect(() => {
-    let pi = 0, ci = 0, deleting = false, paused = false
-    let t: NodeJS.Timeout
-    function step() {
-      const phrase = phrases[pi]
-      if (paused) { paused = false; deleting = true; t = setTimeout(step, 100); return }
-      if (!deleting) {
-        if (ci < phrase.length) {
-          setText(phrase.slice(0, ++ci))
-          const speed = 70 + Math.random() * 50 + (phrase[ci - 1] === ' ' ? 30 : 0)
-          t = setTimeout(step, speed)
-        } else {
-          if (pi === phrases.length - 1) return
-          paused = true; t = setTimeout(step, 1100)
-        }
-      } else {
-        if (ci > 0) { setText(phrase.slice(0, --ci)); t = setTimeout(step, 28 + Math.random() * 18) }
-        else { deleting = false; pi = (pi + 1) % phrases.length; t = setTimeout(step, 180) }
-      }
-    }
-    t = setTimeout(step, 400)
-    return () => clearTimeout(t)
-  }, [])
-  return text
-}
 
 /* ── SCROLL REVEAL ── */
 function useReveal() {
@@ -254,7 +243,7 @@ function VisContradiction({ active, theme }: { active: boolean; theme: 'dark' | 
         {step >= 3 && (
           <div style={{ padding: '10px 12px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.18)', borderLeft: '2px solid rgba(192,57,43,0.6)', borderRadius: '0 4px 4px 0', animation: 'fadeUp 0.35s ease forwards' }}>
             <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(231,76,60,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 5 }}>⚡ Contradiction Detected</span>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: light ? 'rgba(180,60,50,0.8)' : 'rgba(255,150,140,0.65)', lineHeight: 1.45 }}>Badge log confirms shared server room access at 7:43 PM — Exhibit 7</p>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: light ? 'rgba(180,60,50,0.8)' : 'rgba(255,150,140,0.65)', lineHeight: 1.45 }}>Badge log confirms shared server room access at 7:43 PM. Exhibit 7</p>
           </div>
         )}
       </div>
@@ -268,7 +257,7 @@ const BRIEF = [
   { label: 'p.4:12',     text: '"I never saw Calloway there."' },
   { label: 'p.7:31',     text: '"I may have seen him briefly."' },
   { label: 'Exhibit 7',  text: 'Badge log confirms shared access 7:43 PM' },
-  { label: 'Basis',      text: 'Prior inconsistent statement — FRE 613' },
+  { label: 'Basis',      text: 'Prior inconsistent statement, FRE 613' },
 ]
 
 function VisBrief({ active, theme }: { active: boolean; theme: 'dark' | 'light' }) {
@@ -380,8 +369,8 @@ function VisCredibility({ active, theme }: { active: boolean; theme: 'dark' | 'l
 }
 
 /* ── FEATURE SECTION WRAPPER ── */
-function FeatSection({ tag, title, body, vis, reverse = false, id }: {
-  tag: string; title: string; body: string
+function FeatSection({ tag, title, body, sub, vis, reverse = false, id }: {
+  tag: string; title: string; body: string; sub: string
   vis: (active: boolean) => React.ReactNode
   reverse?: boolean; id: string
 }) {
@@ -399,6 +388,7 @@ function FeatSection({ tag, title, body, vis, reverse = false, id }: {
       <span className="feat-tag">{tag}</span>
       <h3 className="feat-title">{title}</h3>
       <p className="feat-body">{body}</p>
+      <p className="feat-sub">{sub}</p>
     </div>
   )
   const visual = <div className="feat-vis">{vis(active)}</div>
@@ -409,25 +399,11 @@ function FeatSection({ tag, title, body, vis, reverse = false, id }: {
   )
 }
 
-/* ── EMAIL SUBMIT ── */
-function EmailCapture() {
-  const [submitted, setSubmitted] = useState(false)
-  const [val, setVal] = useState('')
-  function submit() { if (!val || !val.includes('@')) return; setSubmitted(true) }
-  if (submitted) return <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300, color: 'var(--text)', letterSpacing: '0.03em' }}>You're on the list. We'll be in touch.</p>
-  return (
-    <div className="email-wrap">
-      <input className="email-input" type="email" placeholder="your@firm.com" value={val} onChange={e => setVal(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()}/>
-      <button className="email-submit" onClick={submit}>Join Waitlist →</button>
-    </div>
-  )
-}
-
 /* ── PAGE ── */
 export default function Home() {
   useReveal()
   const theme = useTheme()
-  const typed = useTypewriter(['Your AI Second Chair', 'Depose with Precision', 'Never Miss a Thread', 'Your AI Second Chair'])
+  const onMedia = HERO_MEDIA.type !== 'none'
 
   return (
     <main style={{ background: 'var(--bg)' }}>
@@ -436,46 +412,72 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="hero-section" style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-        padding: '0 52px', position: 'relative', overflow: 'hidden',
+        alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left',
+        padding: '128px clamp(24px, 7vw, 112px) 96px',
+        position: 'relative', overflow: 'hidden',
+        background: onMedia ? '#0a0a0a' : 'var(--bg)',
       }}>
-        {/* Dark mode: shader animation */}
-        {theme === 'dark' && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            <ShaderAnimation />
-          </div>
+        {/* Background media */}
+        {HERO_MEDIA.type === 'image' && (
+          <img src={HERO_MEDIA.src} alt="" aria-hidden="true" style={heroMediaStyle} />
         )}
-        {/* Light mode: floating paths on beige */}
-        {theme === 'light' && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
-            <FloatingPaths position={1} />
-            <FloatingPaths position={-1} />
-          </div>
+        {HERO_MEDIA.type === 'video' && (
+          <video
+            src={HERO_MEDIA.src}
+            poster={HERO_MEDIA.poster}
+            autoPlay muted loop playsInline
+            aria-hidden="true"
+            style={heroMediaStyle}
+          />
         )}
-        {/* Dark halo — only in dark mode */}
-        <div className="hero-halo" style={{
-          position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -55%)',
-          width: 600, height: 400,
-          background: 'radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 70%)',
-          pointerEvents: 'none', zIndex: 2,
-        }}/>
-        <div style={{ position: 'relative', zIndex: 3, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <p className="label" style={{ marginBottom: 28 }}>AI Deposition Intelligence</p>
-          <h1 style={{
-            fontFamily: 'var(--font-serif)', fontSize: 'clamp(3.2rem, 7.5vw, 6rem)',
-            fontWeight: 400, lineHeight: 0.93, letterSpacing: '-0.025em',
-            color: theme === 'light' ? '#111111' : '#f2f2f2', marginBottom: 28, minHeight: '1.05em',
-          }}>
-            {typed}<span className="cursor-blink"/>
-          </h1>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300, lineHeight: 1.7, marginBottom: 40, maxWidth: 320, color: theme === 'light' ? 'rgba(0,0,0,0.68)' : 'rgba(255,255,255,0.78)' }}>
-            Upload your case files.<br />Depose with real-time AI intelligence.<br />Contradictions, inconsistencies, and follow-ups surfaced as testimony unfolds.
+
+        {/* Legibility scrim. Darkens the left so the copy holds over any footage. */}
+        {onMedia && (
+          <>
+            <div aria-hidden="true" style={{
+              position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+              background: 'linear-gradient(to right, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.58) 40%, rgba(0,0,0,0.18) 74%, rgba(0,0,0,0.06) 100%)',
+            }}/>
+            <div aria-hidden="true" style={{
+              position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 42%)',
+            }}/>
+          </>
+        )}
+
+        <div style={{ position: 'relative', zIndex: 3, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <p className="label" style={{ marginBottom: 24, ...(onMedia ? { color: 'rgba(255,255,255,0.62)' } : null) }}>
+            AI Deposition Intelligence
           </p>
-          <EmailCapture />
-          <p style={{ marginTop: 14, fontFamily: 'var(--font-sans)', fontSize: '0.65rem', fontWeight: 300, letterSpacing: '0.05em', color: theme === 'light' ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.5)' }}>Currently in private beta</p>
-          <SkyDeckBadge />
+          <h1 style={{
+            fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4.8vw, 4.2rem)',
+            fontWeight: 400, lineHeight: 1.04, letterSpacing: '-0.025em',
+            color: onMedia ? '#f7f4ef' : (theme === 'light' ? '#111111' : '#f2f2f2'),
+            marginBottom: 24,
+          }}>
+            Some Firms Always Seem to Know.<br />Now You Will.
+          </h1>
+          <p style={{
+            fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 300,
+            lineHeight: 1.65, marginBottom: 40, maxWidth: 470,
+            color: onMedia ? 'rgba(255,255,255,0.82)' : (theme === 'light' ? 'rgba(0,0,0,0.68)' : 'rgba(255,255,255,0.78)'),
+          }}>
+            Real-time contradiction detection for litigators. Cited to page and line, before the deposition ends.
+          </p>
+          <Link href="/demo" className="btn btn-solid btn-rect">Book a Demo</Link>
+          {/* -8px pulls the badge's own padding back so it sits flush with the button */}
+          <div style={{ marginTop: 28, marginLeft: -8 }}>
+            <SkyDeckBadge />
+          </div>
+          <p style={{
+            marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: '0.65rem',
+            fontWeight: 300, letterSpacing: '0.05em',
+            color: onMedia ? 'rgba(255,255,255,0.55)' : (theme === 'light' ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.5)'),
+          }}>
+            Currently in private beta
+          </p>
         </div>
-        <div style={{ position: 'absolute', bottom: 44, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ position: 'absolute', bottom: 44, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
           <div className="hero-scroll-line" />
         </div>
       </section>
@@ -486,7 +488,7 @@ export default function Home() {
       <section style={{ padding: '72px 52px 0', maxWidth: 1100, margin: '0 auto' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>The Platform</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>Intelligence at every stage</h2>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>The prep you&rsquo;d get from three more associates.</h2>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 180px' }}>
           <DisplayCards cards={STAGE_CARDS} />
@@ -503,23 +505,28 @@ export default function Home() {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', borderTop: '1px solid var(--border)' }}>
         <FeatSection id="f1" tag="Preparation" title="Case Analysis"
-          body="Upload case files, prior depositions, and exhibits. Ithildin ingests and cross-references everything — surfacing the insights that matter before you walk in."
+          body="Upload case files, prior depositions, and exhibits. Ithildin ingests and cross-references everything, surfacing the insights that matter before you walk in."
+          sub="The conflict you'd have found on the third read-through. Found before the first."
           vis={(a) => <VisUpload active={a} theme={theme} />}
         />
         <FeatSection id="f2" tag="Live Intelligence" title="Real-Time Transcription" reverse
-          body="Ithildin listens and transcribes with speaker attribution, timestamps, and instant page:line references — as the witness speaks."
+          body="Ithildin listens and transcribes with speaker attribution, timestamps, and instant page:line references as the witness speaks."
+          sub="Page and line, live. No waiting on the rough."
           vis={(a) => <VisTranscript active={a} theme={theme} />}
         />
         <FeatSection id="f3" tag="Live Intelligence" title="Contradiction Detection"
-          body="The moment a witness contradicts prior testimony or your documents, Ithildin flags it — with the source, page, and line — in real time."
+          body="The moment a witness contradicts prior testimony or your documents, Ithildin flags it in real time, with the source, page, and line."
+          sub="Caught in the room. Not in the transcript three weeks later."
           vis={(a) => <VisContradiction active={a} theme={theme} />}
         />
         <FeatSection id="f4" tag="Post-Deposition" title="Impeachment Brief" reverse
-          body="Automatically drafts impeachment sections from every contradiction found — cite-ready for court, generated within minutes of concluding."
+          body="Automatically drafts impeachment sections from every contradiction found. Cite-ready for court, generated within minutes of concluding."
+          sub="The brief your associate writes over a weekend, in twelve minutes."
           vis={(a) => <VisBrief active={a} theme={theme} />}
         />
         <FeatSection id="f5" tag="Intelligence" title="Witness Credibility"
-          body="Consistency scoring across the full deposition. See where testimony holds, where it shifts, and where it breaks — mapped visually."
+          body="Consistency scoring across the full deposition. See where testimony holds, where it shifts, and where it breaks, mapped visually."
+          sub="You already knew the witness was lying. Now it's on the record."
           vis={(a) => <VisCredibility active={a} theme={theme} />}
         />
       </div>
@@ -532,9 +539,9 @@ export default function Home() {
             Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-muted)', marginBottom: 44 }}>
-            Talk to our team or deploy today.
+            Assume the other side is already running it.
           </p>
-          <EmailCapture />
+          <Link href="/demo" className="btn btn-solid btn-rect">Book a Demo</Link>
         </div>
       </section>
 

@@ -70,7 +70,7 @@ export default function Mission() {
           that proves it can be done responsibly.
         </p>
 
-        {/* Revenue commitment pull quote — no em dash */}
+        {/* Revenue commitment pull quote, no em dash */}
         <blockquote style={{
           margin: '0 0 64px',
           padding: '2px 0 2px 32px',
@@ -99,7 +99,7 @@ export default function Mission() {
           </p>
         </blockquote>
 
-        {/* Closing — no em dashes */}
+        {/* Closing, no em dashes */}
         <p style={{
           fontFamily: 'var(--font-sans)',
           fontSize: 'clamp(1.05rem, 1.8vw, 1.22rem)',

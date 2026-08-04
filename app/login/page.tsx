@@ -66,7 +66,7 @@ export default function LoginPage() {
             onClick={() => handleOAuth('google')}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              width: '100%', padding: '11px 20px', borderRadius: 100,
+              width: '100%', padding: '11px 20px', borderRadius: 4,
               background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
               color: 'rgba(255,255,255,0.75)', fontFamily: 'var(--font-sans)',
               fontSize: '0.8rem', fontWeight: 300, cursor: 'pointer',
@@ -146,8 +146,8 @@ export default function LoginPage() {
             fontWeight: 300, color: 'rgba(255,255,255,0.3)', textAlign: 'center',
           }}>
             Don&rsquo;t have access?{' '}
-            <Link href="/waitlist" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'underline' }}>
-              Join the waitlist
+            <Link href="/demo" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'underline' }}>
+              Book a demo
             </Link>
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function LoginPage() {
 const inputStyle: React.CSSProperties = {
   background: 'rgba(255,255,255,0.03)',
   border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: 100,
+  borderRadius: 4,
   padding: '11px 20px',
   fontFamily: 'var(--font-sans)',
   fontSize: '0.82rem',

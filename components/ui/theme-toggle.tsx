@@ -24,7 +24,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     localStorage.setItem("theme", theme)
   }
 
-  // Render a placeholder until we read localStorage — prevents the flash animation on navigation
+  // Render a placeholder until we read localStorage. Prevents the flash animation on navigation
   if (isDark === null) {
     return <div style={{ width: 64, height: 32 }} />
   }

@@ -58,7 +58,7 @@ export default function WaitlistPage() {
               fontFamily: 'var(--font-sans)', fontSize: '0.6rem', letterSpacing: '0.22em',
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 40, textAlign: 'center',
             }}>
-              Ithildin — Early Access
+              Ithildin · Early Access
             </p>
 
             <h1 style={{
@@ -81,7 +81,7 @@ export default function WaitlistPage() {
                 onClick={() => handleOAuth('google')}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                  padding: '11px 20px', borderRadius: 100,
+                  padding: '11px 20px', borderRadius: 4,
                   background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
                   color: 'rgba(255,255,255,0.75)', fontFamily: 'var(--font-sans)',
                   fontSize: '0.8rem', fontWeight: 300, cursor: 'pointer',
@@ -113,7 +113,7 @@ export default function WaitlistPage() {
                 onChange={e => setEmail(e.target.value)}
                 style={{
                   background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 100, padding: '11px 20px',
+                  borderRadius: 4, padding: '11px 20px',
                   fontFamily: 'var(--font-sans)', fontSize: '0.82rem', fontWeight: 300,
                   color: 'var(--silver)', outline: 'none', width: '100%',
                   transition: 'border-color 0.2s',

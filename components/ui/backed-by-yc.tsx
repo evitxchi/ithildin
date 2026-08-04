@@ -35,7 +35,7 @@ export const Component = () => {
           <div className="absolute inset-0 rounded-full blur-2xl bg-[radial-gradient(160px_80px_at_var(--mx)_var(--my),rgba(253,181,21,0.28),transparent_70%)]" />
         </div>
 
-        {/* Gleaming silver border — rotating conic shimmer */}
+        {/* Gleaming silver border, rotating conic shimmer */}
         <div style={{ position: 'relative', borderRadius: 9999, padding: 1, display: 'inline-flex' }}>
           <div style={{ position: 'absolute', inset: 0, borderRadius: 9999, overflow: 'hidden' }}>
             <div style={{
@@ -65,6 +65,11 @@ export const Component = () => {
                 alt="Berkeley SkyDeck"
                 style={{ height: 18, width: 'auto', objectFit: 'contain' }}
               />
+              <span aria-hidden="true" style={{ width: 1, height: 14, background: 'rgba(140,140,140,0.45)' }} />
+              <span className="text-sm font-medium tracking-wide text-neutral-700 dark:text-white/80 whitespace-nowrap"
+                style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, letterSpacing: '0.04em' }}>
+                Pad13
+              </span>
             </div>
           </div>
         </div>
