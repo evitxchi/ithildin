@@ -189,6 +189,17 @@ h1, h2, h3, h4 {
 [data-theme="light"] .nav-link { color: rgba(0,0,0,0.5); }
 [data-theme="light"] .nav-link:hover { color: rgba(0,0,0,0.85); }
 
+/* Hero fills the viewport. svh is the small viewport, so iOS Safari's address
+   bar cannot push content out of sight the way 100vh does. */
+.hero-section {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* Mobile nav. Both are desktop-hidden and switched on under 768px. */
+.nav-burger { display: none; }
+.nav-mobile-panel { display: none; }
+
 .line { height: 1px; background: var(--border); }
 
 .label {
@@ -398,20 +409,93 @@ h1, h2, h3, h4 {
   .feat-section { grid-template-columns: 1fr; }
   .stages-grid { grid-template-columns: 1fr !important; }
   .footer-links { flex-direction: column !important; gap: 40px !important; }
-  .nav-center {
-    position: static !important;
-    transform: none !important;
-    width: auto !important;
-    order: 0 !important;
-    padding: 0 !important;
-    gap: 20px !important;
-  }
-  nav { flex-wrap: nowrap !important; gap: 16px !important; row-gap: 0 !important; }
+  /* ── NAV ──
+     The bar carries only logo, theme, CTA and burger. Everything else moves
+     into the panel, which is what keeps the header inside the viewport. */
+  nav { padding: 12px 16px !important; gap: 10px !important; flex-wrap: nowrap !important; row-gap: 0 !important; }
+  .nav-center { display: none !important; }
   .nav-wordmark { display: none; }
-  /* Keep the primary CTA on small screens, drop the secondary text link */
   .nav-link-login { display: none; }
-  .nav-demo-cta { padding: 8px 14px !important; font-size: 0.7rem !important; }
-  .feat-vis { min-height: 220px; }
+  .nav-logo { height: 38px !important; }
+  .nav-demo-cta { padding: 8px 13px !important; font-size: 0.7rem !important; }
+
+  .nav-burger {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    border-radius: 4px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .nav-mobile-panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: var(--bg-nav-scrolled);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px 18px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .nav-mobile-link {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 11px 2px;
+  }
+  .nav-mobile-link--sub { font-size: 0.82rem; color: var(--text-dim); padding-left: 12px; }
+  .nav-mobile-heading {
+    font-family: var(--font-sans);
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 14px 2px 4px;
+  }
+  .nav-mobile-rule { height: 1px; background: var(--border); margin: 10px 0 2px; }
+
+  /* ── STAGE CARDS ──
+     Undo the desktop stack, skew and offsets, which pushed the deck past the
+     right edge. On mobile they read as a plain column. */
+  .stage-cards {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    grid-template-areas: none !important;
+  }
+  .stage-cards > div {
+    grid-area: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 104px;
+    filter: none !important;
+  }
+  .stage-cards > div::before { opacity: 0 !important; }
+  .stage-cards .display-card-fade::after { display: none !important; }
+  .stage-cards p { white-space: normal !important; }
+
+  /* Chronology rows stack so the event text is readable instead of ellipsed */
+  .chrono-entry { flex-wrap: wrap; row-gap: 5px; }
+  .chrono-entry .chrono-text {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .feat-vis { min-height: 220px; padding: 28px 20px !important; }
+  .feat-vis > div { max-width: 100%; }
   .footer-badges { flex-wrap: wrap; }
   .footer-badges > a { padding: 20px 28px !important; }
 

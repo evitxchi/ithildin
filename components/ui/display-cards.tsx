@@ -57,7 +57,7 @@ interface DisplayCardsProps {
 export default function DisplayCards({ cards }: DisplayCardsProps) {
   if (!cards) return null
   return (
-    <div className="grid [grid-template-areas:'stack'] place-items-center animate-in fade-in-0 duration-700">
+    <div className="stage-cards grid [grid-template-areas:'stack'] place-items-center animate-in fade-in-0 duration-700">
       {cards.map((cardProps, index) => (
         <DisplayCard key={index} {...cardProps} />
       ))}

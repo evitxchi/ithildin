@@ -399,7 +399,7 @@ function MasterChronologyDemo() {
               {ph.entries.map(e => {
                 const visible = counter++ < shown
                 return (
-                  <div key={e.date + e.text} style={{
+                  <div key={e.date + e.text} className="chrono-entry" style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '7px 11px',
                     background: p.inset,
@@ -410,7 +410,7 @@ function MasterChronologyDemo() {
                     transition: 'opacity 0.35s ease, transform 0.35s ease',
                   }}>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: p.faint, flexShrink: 0, letterSpacing: '0.02em' }}>{e.date}</span>
-                    <span style={{
+                    <span className="chrono-text" style={{
                       fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: p.body,
                       flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     }}>{e.text}</span>

@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Menu, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import {
   NavigationMenu,
@@ -77,11 +79,22 @@ function ResourcesMenu() {
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 30)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  /* Close the mobile panel after navigating, and if the viewport grows to
+     desktop where the burger no longer exists. */
+  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => {
+    const fn = () => { if (window.innerWidth > 768) setMenuOpen(false) }
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
   }, [])
 
   return (
@@ -103,7 +116,7 @@ export default function Nav() {
         textDecoration: 'none',
         letterSpacing: '0.01em',
       }}>
-        <img src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 62, width: 'auto' }} />
+        <img className="nav-logo" src="/ithildinlogo.png" alt="Ithildin logo" style={{ height: 62, width: 'auto' }} />
         <span className="nav-wordmark">Ithildin</span>
       </Link>
 
@@ -123,7 +136,32 @@ export default function Nav() {
         <Link href="/demo" className="btn btn-solid nav-demo-cta">
           Book a Demo
         </Link>
+        <button
+          type="button"
+          className="nav-burger"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}
+        >
+          {menuOpen ? <X size={16} strokeWidth={1.5} /> : <Menu size={16} strokeWidth={1.5} />}
+        </button>
       </div>
+
+      {/* Mobile panel. The burger only exists under 768px, so this only opens there. */}
+      {menuOpen && (
+        <div className="nav-mobile-panel">
+          <Link href="/product" className="nav-mobile-link">Product</Link>
+          <Link href="/mission" className="nav-mobile-link">Mission</Link>
+          <span className="nav-mobile-heading">Resources</span>
+          {RESOURCES.map(item => (
+            <Link key={item.title} href={item.href} className="nav-mobile-link nav-mobile-link--sub">
+              {item.title}
+            </Link>
+          ))}
+          <span className="nav-mobile-rule" />
+          <Link href="/login" className="nav-mobile-link">Login</Link>
+        </div>
+      )}
     </nav>
   )
 }
