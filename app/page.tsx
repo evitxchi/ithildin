@@ -67,37 +67,55 @@ const STAGE_CARDS = [
   },
 ]
 
-/* ── HERO HEADING ──
-   Words appear in sequence on first load, then sit static. The module-level flag
-   survives client-side navigation, so coming back to / does not replay it. A
-   hard reload resets the module and plays it again. */
-let heroPlayed = false
-const HERO_WORDS = ['Some', 'Firms', 'Always', 'Seem', 'to', 'Know.', 'br', 'Now', 'You', 'Will.']
-const HERO_WORD_COUNT = HERO_WORDS.filter(w => w !== 'br').length
+/* ── WORD REVEAL ──
+   Words fade up one after another. `start` decides when the sequence runs: the
+   hero plays on load, every other heading waits until it scrolls into view so
+   the animation is something you catch rather than something that already
+   finished above the fold. Either way it plays once and then sits static.
 
-function HeroHeading({ color }: { color: string }) {
+   Words are given as an array so a literal 'br' can force a line break. */
+type WordRevealProps = {
+  words: string[]
+  start: 'load' | 'inview'
+  style: React.CSSProperties
+  as?: 'h1' | 'h2'
+}
+
+function WordReveal({ words, start, style, as: Tag = 'h2' }: WordRevealProps) {
+  const ref = useRef<HTMLHeadingElement>(null)
   const [revealed, setRevealed] = useState(0)
+  const count = words.filter(w => w !== 'br').length
 
   useEffect(() => {
-    if (heroPlayed) { setRevealed(HERO_WORD_COUNT); return }
-    heroPlayed = true
-    const timers = Array.from({ length: HERO_WORD_COUNT }, (_, i) =>
-      setTimeout(() => setRevealed(i + 1), 160 + i * 85)
-    )
-    return () => timers.forEach(clearTimeout)
-  }, [])
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const play = () => {
+      for (let i = 0; i < count; i++) {
+        timers.push(setTimeout(() => setRevealed(i + 1), 160 + i * 85))
+      }
+    }
+
+    if (start === 'load') {
+      play()
+      return () => timers.forEach(clearTimeout)
+    }
+
+    const el = ref.current
+    if (!el) return
+    /* 0.35 so the heading is properly on screen before it starts, and
+       disconnect on the first hit so scrolling back up never replays it. */
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { io.disconnect(); play() }
+    }, { threshold: 0.35 })
+    io.observe(el)
+    return () => { io.disconnect(); timers.forEach(clearTimeout) }
+  }, [count, start])
 
   let wordIndex = 0
   return (
-    <h1 style={{
-      fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4.8vw, 4.2rem)',
-      fontWeight: 400, lineHeight: 1.04, letterSpacing: '-0.025em',
-      color, marginBottom: 24,
-    }}>
-      {HERO_WORDS.map((w, i) => {
+    <Tag ref={ref} style={style}>
+      {words.map((w, i) => {
         if (w === 'br') return <br key={i} />
-        const idx = wordIndex++
-        const shown = idx < revealed
+        const shown = wordIndex++ < revealed
         return (
           /* The space lives inside the span with white-space:pre so the heading
              still reads as words to screen readers and to copy-paste. */
@@ -110,8 +128,34 @@ function HeroHeading({ color }: { color: string }) {
           }}>{w + ' '}</span>
         )
       })}
-    </h1>
+    </Tag>
   )
+}
+
+/* ── HERO HEADING ──
+   The module-level flag survives client-side navigation, so coming back to /
+   does not replay the hero. A hard reload resets the module and plays it. */
+let heroPlayed = false
+const HERO_WORDS = ['Some', 'Firms', 'Always', 'Seem', 'to', 'Know.', 'br', 'Now', 'You', 'Will.']
+
+function HeroHeading({ color }: { color: string }) {
+  const first = useRef(!heroPlayed)
+  useEffect(() => { heroPlayed = true }, [])
+
+  if (!first.current) {
+    return (
+      <h1 style={{ ...HERO_HEADING_STYLE, color }}>
+        {HERO_WORDS.map((w, i) => w === 'br' ? <br key={i} /> : <span key={i} style={{ whiteSpace: 'pre' }}>{w + ' '}</span>)}
+      </h1>
+    )
+  }
+  return <WordReveal as="h1" words={HERO_WORDS} start="load" style={{ ...HERO_HEADING_STYLE, color }} />
+}
+
+const HERO_HEADING_STYLE: React.CSSProperties = {
+  fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4.8vw, 4.2rem)',
+  fontWeight: 400, lineHeight: 1.04, letterSpacing: '-0.025em',
+  marginBottom: 24,
 }
 
 /* ── SCROLL REVEAL ── */
@@ -740,7 +784,7 @@ export default function Home() {
 
   return (
     <main style={{ background: 'var(--bg)' }}>
-      <Nav />
+      <Nav onDark={onMedia} />
 
       {/* ── HERO ── */}
       <section className="hero-section" style={{
@@ -779,14 +823,14 @@ export default function Home() {
         )}
 
         <div style={{ position: 'relative', zIndex: 3, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <p className="label" style={{ marginBottom: 24, ...(onMedia ? { color: 'rgba(255,255,255,0.62)' } : null) }}>
+          <p className="label" style={{ marginBottom: 24, ...(onMedia ? { color: 'rgba(255,255,255,0.8)' } : null) }}>
             AI Deposition Intelligence
           </p>
           <HeroHeading color={onMedia ? '#f7f4ef' : (theme === 'light' ? '#111111' : '#f2f2f2')} />
-          <p style={{
-            fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 300,
-            lineHeight: 1.65, marginBottom: 40, maxWidth: 470,
-            color: onMedia ? 'rgba(255,255,255,0.82)' : (theme === 'light' ? 'rgba(0,0,0,0.68)' : 'rgba(255,255,255,0.78)'),
+          <p className="sub-lede" style={{
+            fontSize: '1.1rem',
+            marginBottom: 40, maxWidth: 500,
+            color: onMedia ? 'rgba(255,255,255,0.9)' : (theme === 'light' ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.86)'),
           }}>
             Real-time contradiction detection for litigators. Cited to page and line, before the deposition ends.
           </p>
@@ -796,9 +840,9 @@ export default function Home() {
             <SkyDeckBadge />
           </div>
           <p style={{
-            marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: '0.65rem',
-            fontWeight: 300, letterSpacing: '0.05em',
-            color: onMedia ? 'rgba(255,255,255,0.55)' : (theme === 'light' ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.5)'),
+            marginTop: 10, fontFamily: 'var(--font-sub)', fontSize: '0.72rem',
+            fontWeight: 400, letterSpacing: '0.05em',
+            color: onMedia ? 'rgba(255,255,255,0.72)' : (theme === 'light' ? 'rgba(0,0,0,0.58)' : 'rgba(255,255,255,0.66)'),
           }}>
             Currently in private beta
           </p>
@@ -814,7 +858,11 @@ export default function Home() {
       <section style={{ padding: '72px 52px 0', maxWidth: 1100, margin: '0 auto' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>The Platform</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>The prep you&rsquo;d get from three more associates.</h2>
+          <WordReveal
+            start="inview"
+            words={['The', 'prep', 'you’d', 'get', 'from', 'three', 'more', 'associates.']}
+            style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}
+          />
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 180px' }}>
           <DisplayCards cards={STAGE_CARDS} />
@@ -831,7 +879,11 @@ export default function Home() {
       <section style={{ maxWidth: 1100, margin: '0 auto', borderTop: '1px solid var(--border)' }}>
         <div className="reveal" style={{ padding: '60px 52px 0' }}>
           <p className="label" style={{ marginBottom: 18 }}>Capabilities</p>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 48 }}>Everything your case demands</h2>
+          <WordReveal
+            start="inview"
+            words={['Everything', 'your', 'case', 'demands']}
+            style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 48 }}
+          />
         </div>
       </section>
 
@@ -872,9 +924,11 @@ export default function Home() {
       <section style={{ padding: '160px 52px', textAlign: 'center', borderTop: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(200,200,200,0.02) 0%, transparent 70%)', pointerEvents: 'none' }}/>
         <div className="reveal" style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3rem, 6vw, 5.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1, marginBottom: 20 }}>
-            Built for firms that can&rsquo;t<br/>afford to miss anything.
-          </h2>
+          <WordReveal
+            start="inview"
+            words={['Built', 'for', 'firms', 'that', 'can’t', 'br', 'afford', 'to', 'miss', 'anything.']}
+            style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3rem, 6vw, 5.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1, marginBottom: 20 }}
+          />
           <p className="msg-line" style={{ marginBottom: 48 }}>
             Assume the other side is already running it.
           </p>

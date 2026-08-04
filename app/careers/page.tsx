@@ -1,14 +1,11 @@
 import type { Metadata } from 'next'
-import StubPage from '@/components/StubPage'
+import CareersView from './CareersView'
 
-export const metadata: Metadata = { title: 'Careers | Ithildin' }
+export const metadata: Metadata = {
+  title: 'Careers | Ithildin',
+  description: 'Open roles at Ithildin. Build the intelligence layer for the deposition record.',
+}
 
 export default function Careers() {
-  return (
-    <StubPage
-      label="Careers"
-      title="Careers"
-      body="Open roles are posted soon. We hire people who build for litigators and care about getting the record right."
-    />
-  )
+  return <CareersView />
 }

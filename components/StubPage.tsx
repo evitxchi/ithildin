@@ -21,10 +21,7 @@ export default function StubPage({ label, title, body }: { label: string; title:
         }}>
           {title}
         </h1>
-        <p style={{
-          fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
-          color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: 420,
-        }}>
+        <p className="sub-lede" style={{ lineHeight: 1.75, maxWidth: 440 }}>
           {body}
         </p>
 

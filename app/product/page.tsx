@@ -1273,7 +1273,7 @@ export default function Product() {
         <p className="msg-line msg-line--center">
           It isn&rsquo;t a better lawyer across the table. It&rsquo;s a better record.
         </p>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', lineHeight: 1.65 }}>
+        <p className="sub-lede">
           Live transcription, contradiction detection, and follow-up suggestions as testimony unfolds.
         </p>
       </section>
@@ -1290,7 +1290,7 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             The witness&rsquo;s psychology.<br/>Mapped in real time.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p className="sub-lede" style={{ maxWidth: 540, margin: '0 auto' }}>
             Ithildin builds a live psychological profile as testimony unfolds, tracking defensiveness, deception patterns, and narrative integrity across every 30-minute interval.
           </p>
         </div>
@@ -1309,7 +1309,7 @@ export default function Product() {
           <p className="msg-line msg-line--center">
             Nothing you caught walks out of the room.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p className="sub-lede" style={{ maxWidth: 540, margin: '0 auto' }}>
             A visual transcript where clean testimony is green, inconsistencies are orange, and contradictions glow red. At a glance, see exactly where the deposition got dangerous.
           </p>
         </div>
@@ -1328,7 +1328,7 @@ export default function Product() {
           <p className="msg-line msg-line--center">
             You did the prep. This makes sure none of it is wasted.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p className="sub-lede" style={{ maxWidth: 540, margin: '0 auto' }}>
             Upload your documents and Ithildin builds the case timeline and evidence map automatically. Gaps, conflicts, and all.
           </p>
         </div>
@@ -1356,7 +1356,7 @@ export default function Product() {
           <p className="msg-line msg-line--center">
             The gap isn&rsquo;t talent. It&rsquo;s what happens between the transcript and the brief.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p className="sub-lede" style={{ maxWidth: 540, margin: '0 auto' }}>
             The moment testimony ends, Ithildin builds a complete intelligence report. Witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
           </p>
         </div>

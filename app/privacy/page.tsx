@@ -112,10 +112,7 @@ export default function Privacy() {
         }}>
           {hero}<span className="cursor-blink" />
         </h1>
-        <p className="reveal" style={{
-          fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
-          color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: 520,
-        }}>
+        <p className="reveal sub-lede" style={{ lineHeight: 1.75, maxWidth: 520 }}>
           Ithildin is built for the legal industry, where confidentiality is non-negotiable. Every system, control, and audit exists to protect your clients' most sensitive information.
         </p>
       </section>

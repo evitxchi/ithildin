@@ -44,9 +44,9 @@ export default function Mission() {
         <p className="label" style={{ marginBottom: 52 }}>Mission</p>
 
         <p style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: 'clamp(1.05rem, 1.8vw, 1.22rem)',
-          fontWeight: 300,
+          fontFamily: 'var(--font-sub)',
+          fontSize: 'clamp(1.12rem, 1.9vw, 1.3rem)',
+          fontWeight: 400,
           lineHeight: 1.9,
           color: 'var(--text-muted)',
           marginBottom: 32,
@@ -58,9 +58,9 @@ export default function Mission() {
         </p>
 
         <p style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: 'clamp(1.05rem, 1.8vw, 1.22rem)',
-          fontWeight: 300,
+          fontFamily: 'var(--font-sub)',
+          fontSize: 'clamp(1.12rem, 1.9vw, 1.3rem)',
+          fontWeight: 400,
           lineHeight: 1.9,
           color: 'var(--text-muted)',
           marginBottom: 64,
@@ -78,9 +78,9 @@ export default function Mission() {
           borderLeft: '2px solid var(--accent)',
         }}>
           <p style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 'clamp(1.05rem, 1.8vw, 1.22rem)',
-            fontWeight: 300,
+            fontFamily: 'var(--font-sub)',
+            fontSize: 'clamp(1.12rem, 1.9vw, 1.3rem)',
+            fontWeight: 400,
             lineHeight: 1.9,
             color: 'var(--text-muted)',
             letterSpacing: '0.005em',
@@ -102,9 +102,9 @@ export default function Mission() {
 
         {/* Closing, no em dashes */}
         <p style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: 'clamp(1.05rem, 1.8vw, 1.22rem)',
-          fontWeight: 300,
+          fontFamily: 'var(--font-sub)',
+          fontSize: 'clamp(1.12rem, 1.9vw, 1.3rem)',
+          fontWeight: 400,
           lineHeight: 1.9,
           color: 'var(--text-muted)',
           letterSpacing: '0.005em',
@@ -124,7 +124,7 @@ export default function Mission() {
         }}>
           <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', color: 'var(--white)', letterSpacing: '0.01em' }}>Ithildin</span>
           <span style={{ width: 1, height: 14, background: 'var(--border)' }} />
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 300, color: 'var(--text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Founded 2025</span>
+          <span style={{ fontFamily: 'var(--font-sub)', fontSize: '0.78rem', fontWeight: 400, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Founded 2025</span>
         </div>
 
       </article>

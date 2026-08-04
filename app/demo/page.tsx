@@ -44,7 +44,7 @@ export default function DemoPage() {
             <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 16 }}>
               Request received.
             </p>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+            <p className="sub-lede">
               We&rsquo;ll reach out to schedule your walkthrough.
             </p>
             <Link href="/" style={{
@@ -71,10 +71,7 @@ export default function DemoPage() {
             }}>
               Book a demo
             </h1>
-            <p style={{
-              fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300,
-              color: 'var(--text-muted)', lineHeight: 1.7, textAlign: 'center', marginBottom: 44,
-            }}>
+            <p className="sub-lede" style={{ textAlign: 'center', marginBottom: 44 }}>
               A walkthrough with our team. Bring a matter and see what Ithildin surfaces in the record.
             </p>
 

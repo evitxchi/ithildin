@@ -62,7 +62,7 @@ export default function Pricing() {
         }}>
           Simple.<br/>Honest.
         </h1>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 28 }}>
+        <p className="sub-lede" style={{ marginBottom: 28 }}>
           First deposition free. Cancel any time.
         </p>
         <div style={{ display: 'inline-flex', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 5, padding: 3, gap: 3 }}>
@@ -161,15 +161,11 @@ export default function Pricing() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 24,
             }}>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.92rem', fontWeight: 300, color: 'var(--text)' }}>{item.q}</p>
+              <p style={{ fontFamily: 'var(--font-sub)', fontSize: '0.98rem', fontWeight: 400, color: 'var(--text)' }}>{item.q}</p>
               <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '1rem', flexShrink: 0, transition: 'transform 0.3s', transform: open === i ? 'rotate(45deg)' : 'none' }}>+</span>
             </button>
             {open === i && (
-              <p style={{
-                fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300,
-                color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, paddingBottom: 22,
-                animation: 'fadeUp 0.3s ease forwards',
-              }}>{item.a}</p>
+              <p className="sub-lede" style={{ lineHeight: 1.7, paddingBottom: 22, animation: 'fadeUp 0.3s ease forwards' }}>{item.a}</p>
             )}
           </div>
         ))}

@@ -26,7 +26,7 @@ const RESOURCES: { title: string; href: string; description: string }[] = [
 /* Trigger is a bare text link, not a shadcn pill. Overrides strip the
    default h-9/px-4/text-sm/bg-accent styling so it matches .nav-link. */
 const TRIGGER_OVERRIDES =
-  'nav-link !h-auto !w-auto !rounded-none !px-1 !py-2 -mx-1 -my-2 !text-[0.76rem] !font-light !bg-transparent ' +
+  'nav-link !h-auto !w-auto !rounded-none !px-1 !py-2 -mx-1 -my-2 !text-[0.82rem] !font-normal !bg-transparent ' +
   'hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent'
 
 function ResourcesMenu() {
@@ -77,7 +77,9 @@ function ResourcesMenu() {
   )
 }
 
-export default function Nav() {
+/* `onDark` marks a page whose masthead is a dark image in both themes — the nav
+   then keeps its dark-mode colours until it scrolls off that hero. */
+export default function Nav({ onDark = false }: { onDark?: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -98,7 +100,7 @@ export default function Nav() {
   }, [])
 
   return (
-    <nav style={{
+    <nav className={onDark && !scrolled ? 'nav-on-dark' : undefined} style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
       padding: '20px 20px',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -107,7 +109,7 @@ export default function Nav() {
       backdropFilter: scrolled ? 'blur(16px)' : 'none',
       transition: 'all 0.35s ease',
     }}>
-      <Link href="/" style={{
+      <Link href="/" className="nav-brand" style={{
         display: 'flex', alignItems: 'center', gap: 2,
         fontFamily: 'var(--font-serif)',
         fontSize: '1.25rem',

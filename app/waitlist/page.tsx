@@ -40,7 +40,7 @@ export default function WaitlistPage() {
             <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 16 }}>
               You&rsquo;re on the list.
             </p>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+            <p className="sub-lede">
               We&rsquo;ll reach out when your access is ready.
             </p>
             <Link href="/" style={{
@@ -68,10 +68,7 @@ export default function WaitlistPage() {
             }}>
               Request access
             </h1>
-            <p style={{
-              fontFamily: 'var(--font-sans)', fontSize: '0.85rem', fontWeight: 300,
-              color: 'var(--text-muted)', lineHeight: 1.7, textAlign: 'center', marginBottom: 44,
-            }}>
+            <p className="sub-lede" style={{ textAlign: 'center', marginBottom: 44 }}>
               Ithildin is in private beta.<br />Join the waitlist and we&rsquo;ll be in touch.
             </p>
 

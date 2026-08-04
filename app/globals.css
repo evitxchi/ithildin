@@ -13,9 +13,24 @@
   font-display: swap;
 }
 
+/* PP Neue Montreal Book. Declared across 300-500 so the light weights already
+   in the markup render from this file instead of a synthetically thinned one —
+   the Book cut is what makes the small text readable. */
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Book.woff2') format('woff2'),
+       url('/fonts/PPNeueMontreal-Book.otf') format('opentype');
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --font-serif: 'Bernstein', Georgia, serif;
   --font-sans: 'DM Sans', 'Helvetica Neue', sans-serif;
+  /* Subheadings, eyebrows, ledes and small UI text. Heavier on the page than
+     DM Sans Light at the same nominal weight. */
+  --font-sub: 'PP Neue Montreal', 'DM Sans', 'Helvetica Neue', sans-serif;
   --bg: #080808;
   --bg-card: #0d0d0d;
   --bg-elevated: #0f0f0f;
@@ -176,18 +191,27 @@ h1, h2, h3, h4 {
 .email-submit:hover { background: #fff; }
 
 .nav-link {
-  font-family: var(--font-sans);
-  font-size: 0.76rem;
-  font-weight: 300;
-  color: rgba(255,255,255,0.6);
+  font-family: var(--font-sub);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.78);
   cursor: pointer;
   transition: color 0.2s;
   text-decoration: none;
 }
-.nav-link:hover { color: rgba(255,255,255,0.92); }
+.nav-link:hover { color: #fff; }
 
-[data-theme="light"] .nav-link { color: rgba(0,0,0,0.5); }
-[data-theme="light"] .nav-link:hover { color: rgba(0,0,0,0.85); }
+[data-theme="light"] .nav-link { color: rgba(0,0,0,0.68); }
+[data-theme="light"] .nav-link:hover { color: #000; }
+
+/* ── NAV OVER A DARK HERO ──
+   The home hero is a dark photograph in both themes, so the bar sitting on it
+   keeps its dark-mode colours in light mode too. Dropped once the nav scrolls
+   off the hero and picks up the solid background. */
+.nav-on-dark .nav-brand { color: #f2f2f2 !important; }
+.nav-on-dark .nav-link { color: rgba(255,255,255,0.82) !important; }
+.nav-on-dark .nav-link:hover { color: #fff !important; }
+.nav-on-dark .nav-burger { color: #f2f2f2; border-color: rgba(255,255,255,0.3); }
 
 /* Hero fills the viewport. svh is the small viewport, so iOS Safari's address
    bar cannot push content out of sight the way 100vh does. */
@@ -203,15 +227,15 @@ h1, h2, h3, h4 {
 .line { height: 1px; background: var(--border); }
 
 .label {
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-family: var(--font-sub);
+  font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  font-weight: 300;
+  color: rgba(255,255,255,0.72);
+  font-weight: 400;
 }
 
-[data-theme="light"] .label { color: rgba(0,0,0,0.45); }
+[data-theme="light"] .label { color: rgba(0,0,0,0.62); }
 
 .feat-section {
   display: grid;
@@ -228,12 +252,12 @@ h1, h2, h3, h4 {
   overflow: hidden;
 }
 .feat-tag {
-  font-family: var(--font-sans);
-  font-size: 0.58rem;
+  font-family: var(--font-sub);
+  font-size: 0.66rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
-  font-weight: 300;
+  font-weight: 400;
   margin-bottom: 14px;
   display: block;
 }
@@ -246,49 +270,157 @@ h1, h2, h3, h4 {
   line-height: 1.1;
 }
 .feat-body {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 300;
-  color: rgba(255,255,255,0.72);
+  font-family: var(--font-sub);
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.82);
   line-height: 1.7;
-  max-width: 300px;
+  max-width: 320px;
 }
 
-[data-theme="light"] .feat-body { color: rgba(0,0,0,0.62); }
+[data-theme="light"] .feat-body { color: rgba(0,0,0,0.74); }
 
 /* ── MESSAGE LINES ──
    The persuasion copy. Deliberately brighter and larger than body text so it
    reads second after the heading, not last. */
 .msg-line {
-  font-family: var(--font-sans);
-  font-size: clamp(1rem, 1.4vw, 1.22rem);
-  font-weight: 300;
+  font-family: var(--font-sub);
+  font-size: clamp(1.08rem, 1.5vw, 1.32rem);
+  font-weight: 400;
   line-height: 1.5;
   letter-spacing: -0.005em;
   color: var(--white);
 }
 .msg-line--center {
-  max-width: 620px;
+  max-width: 660px;
   margin: 0 auto 18px;
 }
 
 /* Same role, sized to sit inside a capability card */
 .feat-sub {
-  font-family: var(--font-sans);
-  font-size: 0.96rem;
-  font-weight: 300;
+  font-family: var(--font-sub);
+  font-size: 1.04rem;
+  font-weight: 400;
   color: var(--white);
   line-height: 1.5;
   letter-spacing: -0.005em;
-  max-width: 320px;
+  max-width: 340px;
   margin-top: 16px;
 }
 
-.demo-caption {
-  font-family: var(--font-sans);
+/* Lede paragraph under a page or section heading */
+.sub-lede {
+  font-family: var(--font-sub);
+  font-size: 0.96rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ── CAREERS ──
+   Label in a narrow left rail, content on the right. Collapses to one column
+   on mobile with the label sitting above its section. */
+.careers-split {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 32px;
+}
+.careers-values { display: flex; flex-direction: column; gap: 40px; }
+.careers-process { display: flex; flex-direction: column; gap: 34px; }
+.process-step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; }
+
+.role-group-heading {
+  font-family: var(--font-sub);
   font-size: 0.7rem;
-  font-weight: 300;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--text-dim);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* The whole row is the link, so the hit target is the full width */
+.role-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 110px 24px;
+  align-items: center;
+  gap: 16px;
+  padding: 26px 4px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  transition: background 0.22s ease, padding 0.22s ease;
+}
+.role-row:hover { background: var(--surface-accent); padding-left: 14px; padding-right: 14px; }
+.role-row-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: -0.015em;
+}
+.role-row-meta {
+  font-family: var(--font-sub);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.role-row-arrow { color: var(--text-dim); justify-self: end; transition: color 0.22s ease, transform 0.22s ease; }
+.role-row:hover .role-row-arrow { color: var(--white); transform: translate(2px, -2px); }
+
+.role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sub);
+  font-size: 0.84rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.role-meta-dot { color: var(--text-dim); }
+
+.role-bullet { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; }
+.role-bullet-mark {
+  width: 5px; height: 5px;
+  margin-top: 0.62em;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ── APPLICATION FORM ── */
+.apply-form { display: flex; flex-direction: column; gap: 18px; max-width: 620px; }
+.apply-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.apply-field { display: flex; flex-direction: column; gap: 8px; }
+.apply-label {
+  font-family: var(--font-sub);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.apply-input {
+  background: var(--surface-accent);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 11px 14px;
+  font-family: var(--font-sub);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.apply-input::placeholder { color: var(--text-dim); }
+.apply-input:focus { border-color: var(--border-mid); }
+
+.demo-caption {
+  font-family: var(--font-sub);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 28px;
@@ -330,6 +462,9 @@ h1, h2, h3, h4 {
   display: block;
 }
 .band-image--cta img { object-position: center 42%; }
+/* Taller than the other bands so the boardroom actually reads as a room */
+.band-image--careers { height: clamp(240px, 32vw, 440px); border-bottom: 1px solid var(--border); }
+.band-image--careers img { object-position: center 55%; }
 
 .cursor-blink {
   display: inline-block;
@@ -444,17 +579,17 @@ h1, h2, h3, h4 {
     overflow-y: auto;
   }
   .nav-mobile-link {
-    font-family: var(--font-sans);
-    font-size: 0.9rem;
-    font-weight: 300;
+    font-family: var(--font-sub);
+    font-size: 0.95rem;
+    font-weight: 400;
     color: var(--text-muted);
     text-decoration: none;
     padding: 11px 2px;
   }
-  .nav-mobile-link--sub { font-size: 0.82rem; color: var(--text-dim); padding-left: 12px; }
+  .nav-mobile-link--sub { font-size: 0.88rem; color: var(--text-muted); padding-left: 12px; }
   .nav-mobile-heading {
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
+    font-family: var(--font-sub);
+    font-size: 0.64rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--text-dim);
@@ -501,6 +636,21 @@ h1, h2, h3, h4 {
 
   /* Section padding */
   section { padding-left: 24px !important; padding-right: 24px !important; }
+
+  /* ── CAREERS ──
+     Rail collapses above its section; role rows drop the metadata columns
+     under the title so nothing has to be truncated. */
+  .careers-split { grid-template-columns: 1fr; gap: 20px; }
+  .role-row {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    row-gap: 6px;
+    padding: 20px 4px;
+  }
+  .role-row-title { grid-column: 1; font-size: 1.15rem; }
+  .role-row-meta { grid-column: 1; }
+  .role-row-arrow { grid-row: 1; grid-column: 2; align-self: start; margin-top: 6px; }
+  .role-row:hover { padding-left: 4px; padding-right: 4px; }
+  .apply-row { grid-template-columns: 1fr; gap: 18px; }
 
   /* Privacy page standard grid */
   .privacy-standard-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
