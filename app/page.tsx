@@ -67,6 +67,53 @@ const STAGE_CARDS = [
   },
 ]
 
+/* ── HERO HEADING ──
+   Words appear in sequence on first load, then sit static. The module-level flag
+   survives client-side navigation, so coming back to / does not replay it. A
+   hard reload resets the module and plays it again. */
+let heroPlayed = false
+const HERO_WORDS = ['Some', 'Firms', 'Always', 'Seem', 'to', 'Know.', 'br', 'Now', 'You', 'Will.']
+const HERO_WORD_COUNT = HERO_WORDS.filter(w => w !== 'br').length
+
+function HeroHeading({ color }: { color: string }) {
+  const [revealed, setRevealed] = useState(0)
+
+  useEffect(() => {
+    if (heroPlayed) { setRevealed(HERO_WORD_COUNT); return }
+    heroPlayed = true
+    const timers = Array.from({ length: HERO_WORD_COUNT }, (_, i) =>
+      setTimeout(() => setRevealed(i + 1), 160 + i * 85)
+    )
+    return () => timers.forEach(clearTimeout)
+  }, [])
+
+  let wordIndex = 0
+  return (
+    <h1 style={{
+      fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4.8vw, 4.2rem)',
+      fontWeight: 400, lineHeight: 1.04, letterSpacing: '-0.025em',
+      color, marginBottom: 24,
+    }}>
+      {HERO_WORDS.map((w, i) => {
+        if (w === 'br') return <br key={i} />
+        const idx = wordIndex++
+        const shown = idx < revealed
+        return (
+          /* The space lives inside the span with white-space:pre so the heading
+             still reads as words to screen readers and to copy-paste. */
+          <span key={i} style={{
+            display: 'inline-block',
+            whiteSpace: 'pre',
+            opacity: shown ? 1 : 0,
+            transform: shown ? 'none' : 'translateY(0.3em)',
+            transition: 'opacity 0.55s ease, transform 0.55s cubic-bezier(.2,.7,.3,1)',
+          }}>{w + ' '}</span>
+        )
+      })}
+    </h1>
+  )
+}
+
 /* ── SCROLL REVEAL ── */
 function useReveal() {
   useEffect(() => {
@@ -735,14 +782,7 @@ export default function Home() {
           <p className="label" style={{ marginBottom: 24, ...(onMedia ? { color: 'rgba(255,255,255,0.62)' } : null) }}>
             AI Deposition Intelligence
           </p>
-          <h1 style={{
-            fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 4.8vw, 4.2rem)',
-            fontWeight: 400, lineHeight: 1.04, letterSpacing: '-0.025em',
-            color: onMedia ? '#f7f4ef' : (theme === 'light' ? '#111111' : '#f2f2f2'),
-            marginBottom: 24,
-          }}>
-            Some Firms Always Seem to Know.<br />Now You Will.
-          </h1>
+          <HeroHeading color={onMedia ? '#f7f4ef' : (theme === 'light' ? '#111111' : '#f2f2f2')} />
           <p style={{
             fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 300,
             lineHeight: 1.65, marginBottom: 40, maxWidth: 470,

@@ -199,10 +199,10 @@ export default function Privacy() {
           }}>
             Our security team is available to answer questions, provide compliance documentation, or arrange a security review for enterprise clients.
           </p>
-          <a href="mailto:security@ithildin.ai" style={{
+          <a href="mailto:security@ithildin.io" style={{
             fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
             color: 'rgba(200,169,110,0.85)', letterSpacing: '0.04em', textDecoration: 'none',
-          }}>security@ithildin.ai →</a>
+          }}>security@ithildin.io →</a>
         </div>
       </section>
 

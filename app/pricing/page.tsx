@@ -124,7 +124,7 @@ export default function Pricing() {
                   {plan.cta}
                 </button>
               ) : (
-                <a href="mailto:sales@ithildin.com" className="btn btn-ghost" style={{ width: '100%', marginBottom: 24 }}>
+                <a href="mailto:sales@ithildin.io" className="btn btn-ghost" style={{ width: '100%', marginBottom: 24 }}>
                   {plan.cta}
                 </a>
               )}

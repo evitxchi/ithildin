@@ -2,36 +2,37 @@
 import { motion } from 'framer-motion'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { LampContainer } from '@/components/ui/lamp'
 
 export default function Mission() {
   return (
     <main style={{ background: 'var(--bg)' }}>
       <Nav />
 
-      {/* Lamp hero */}
-      <LampContainer>
+      {/* Hero */}
+      <section style={{
+        background: 'var(--bg)',
+        padding: 'clamp(160px, 20vh, 220px) 52px clamp(60px, 8vh, 90px)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        borderBottom: '1px solid var(--border)',
+      }}>
         <motion.h1
-          initial={{ opacity: 0.5, y: 100 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8, ease: 'easeInOut' }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
           style={{
             fontFamily: 'var(--font-serif)',
-            fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
+            fontSize: 'clamp(2.6rem, 6.4vw, 5rem)',
             fontWeight: 400,
             lineHeight: 1.05,
             letterSpacing: '-0.025em',
             textAlign: 'center',
-            color: 'transparent',
-            backgroundImage: 'linear-gradient(to bottom right, #f5f0e8, rgba(220,210,190,0.75))',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            marginTop: 32,
+            color: 'var(--white)',
           }}
         >
           Ithildin<br />Mission Statement
         </motion.h1>
-      </LampContainer>
+      </section>
 
       {/* Mission text */}
       <article style={{

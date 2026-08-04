@@ -572,11 +572,26 @@ const HEAT_LINES = [
   { s: 'A', t: 'This is the first time.',                                         r: 3, note: 'DEMONSTRABLY FALSE: see declaration 4/18' },
 ]
 
-const RISK_BG   = ['rgba(255,255,255,0.02)', 'rgba(253,203,110,0.12)', 'rgba(255,165,2,0.18)', 'rgba(255,71,87,0.18)']
-const RISK_GUTTER = ['rgba(255,255,255,0.06)', '#fdcb6e', '#ffa502', '#ff4757']
-const RISK_LABEL  = ['', 'WATCH', 'INCONSISTENT', 'CONTRADICTION']
+const RISK_LABEL = ['', 'WATCH', 'INCONSISTENT', 'CONTRADICTION']
+
+/* Risk hues, tuned per theme so they stay legible on beige as well as black. */
+function riskColors(light: boolean) {
+  return {
+    bg: light
+      ? ['transparent', 'rgba(201,150,42,0.12)', 'rgba(217,127,6,0.13)', 'rgba(201,66,79,0.11)']
+      : ['rgba(255,255,255,0.02)', 'rgba(253,203,110,0.12)', 'rgba(255,165,2,0.18)', 'rgba(255,71,87,0.18)'],
+    gutter: light
+      ? ['rgba(0,0,0,0.09)', '#c9962a', '#d97f06', '#c9424f']
+      : ['rgba(255,255,255,0.06)', '#fdcb6e', '#ffa502', '#ff4757'],
+    legend: light
+      ? ['#2f9e5e', '#c9962a', '#d97f06', '#c9424f']
+      : ['#2ed573', '#fdcb6e', '#ffa502', '#ff4757'],
+  }
+}
 
 function HeatMapDemo() {
+  const p = usePalette()
+  const risk = riskColors(p.light)
   const ref = useRef<HTMLDivElement>(null)
   const [triggered, setTriggered] = useState(false)
 
@@ -592,67 +607,95 @@ function HeatMapDemo() {
   const riskCounts = [0, 1, 2, 3].map(r => HEAT_LINES.filter(l => l.r === r).length)
 
   return (
-    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
-      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
-        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+    <div ref={ref} style={{
+      background: p.card, border: `1px solid ${p.border}`, borderRadius: 12, overflow: 'hidden',
+      boxShadow: p.light ? '0 30px 60px rgba(0,0,0,0.10)' : '0 40px 80px rgba(0,0,0,0.7)',
+      maxWidth: 820, margin: '0 auto',
+    }}>
+      {/* Browser chrome */}
+      <div style={{ background: p.chrome, borderBottom: `1px solid ${p.border}`, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: p.light ? 'rgba(0,0,0,0.12)' : '#222' }} />
+        ))}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/depose/harmon-v-calloway/heatmap
+          <div style={{ background: p.inset, border: `1px solid ${p.hair}`, borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: p.faint }}>
+            app.ithildin.io/depose/harmon-v-calloway/heatmap
           </div>
         </div>
       </div>
-      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Deposition Heat Map · Robert Harmon</span>
+
+      {/* Title + legend */}
+      <div style={{ padding: '8px 18px', background: p.inset, borderBottom: `1px solid ${p.hair}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: p.label, letterSpacing: '0.04em' }}>Deposition Heat Map · Robert Harmon</span>
         <div style={{ display: 'flex', gap: 12 }}>
-          {[['#2ed573','Clean',riskCounts[0]],['#fdcb6e','Watch',riskCounts[1]],['#ffa502','Inconsistent',riskCounts[2]],['#ff4757','Contradiction',riskCounts[3]]].map(([c,l,n]) => (
-            <div key={l as string} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: 6, height: 6, borderRadius: 1, background: c as string }}/>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.3)' }}>{l} ({n})</span>
+          {(['Clean', 'Watch', 'Inconsistent', 'Contradiction'] as const).map((l, i) => (
+            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 6, height: 6, borderRadius: 1, background: risk.legend[i] }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: p.label }}>{l} ({riskCounts[i]})</span>
             </div>
           ))}
         </div>
       </div>
+
       {/* Body: transcript + minimap */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 28px', height: 340 }}>
-        {/* Transcript */}
         <div style={{ overflowY: 'auto', padding: '6px 0' }}>
           {HEAT_LINES.map((line, i) => (
             <div key={i} style={{
               display: 'flex', gap: 0,
-              background: RISK_BG[line.r],
-              borderLeft: `3px solid ${RISK_GUTTER[line.r]}`,
+              background: risk.bg[line.r],
+              borderLeft: `3px solid ${risk.gutter[line.r]}`,
               opacity: triggered ? 1 : 0,
               transform: triggered ? 'none' : 'translateX(-4px)',
               transition: `opacity 0.35s ease ${i * 0.04}s, transform 0.35s ease ${i * 0.04}s`,
             }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: 'rgba(255,255,255,0.15)', padding: '5px 8px 5px 6px', minWidth: 30, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: line.s === 'Q' ? 'rgba(130,130,200,0.5)' : 'rgba(200,200,200,0.22)', padding: '5px 6px 5px 0', flexShrink: 0 }}>{line.s}</span>
-              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: line.r === 0 ? 'rgba(255,255,255,0.42)' : line.r === 3 ? 'rgba(255,200,200,0.75)' : 'rgba(255,255,255,0.6)', padding: '4px 10px 4px 4px', lineHeight: 1.45, flex: 1, minWidth: 0 }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: p.faint, padding: '5px 8px 5px 6px', minWidth: 30, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
+              <span style={{
+                fontFamily: 'monospace', fontSize: '0.48rem', padding: '5px 6px 5px 0', flexShrink: 0,
+                color: line.s === 'Q' ? (p.light ? 'rgba(70,70,130,0.6)' : 'rgba(130,130,200,0.5)') : p.faint,
+              }}>{line.s}</span>
+              <span style={{
+                fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300,
+                padding: '4px 10px 4px 4px', lineHeight: 1.45, flex: 1, minWidth: 0,
+                color: line.r === 0
+                  ? p.label
+                  : line.r === 3
+                    ? (p.light ? '#9e3340' : 'rgba(255,200,200,0.78)')
+                    : p.body,
+              }}>
                 {line.t}
               </span>
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4px 8px', gap: 2, flexShrink: 0, minWidth: line.r > 0 ? 'auto' : 0 }}>
                 {line.r > 0 && (
                   <>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.38rem', letterSpacing: '0.08em', color: RISK_GUTTER[line.r], whiteSpace: 'nowrap' }}>{RISK_LABEL[line.r]}</span>
-                    {line.note && <span style={{ fontFamily: 'monospace', fontSize: '0.36rem', color: 'rgba(255,255,255,0.25)', maxWidth: 200, lineHeight: 1.3 }}>{line.note}</span>}
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.38rem', letterSpacing: '0.08em', color: risk.gutter[line.r], whiteSpace: 'nowrap' }}>{RISK_LABEL[line.r]}</span>
+                    {line.note && <span style={{ fontFamily: 'monospace', fontSize: '0.36rem', color: p.faint, maxWidth: 200, lineHeight: 1.3 }}>{line.note}</span>}
                   </>
                 )}
               </div>
             </div>
           ))}
         </div>
+
         {/* Minimap */}
-        <div style={{ borderLeft: '1px solid rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'column', padding: '6px 4px', gap: 1 }}>
+        <div style={{ borderLeft: `1px solid ${p.hair}`, display: 'flex', flexDirection: 'column', padding: '6px 4px', gap: 1 }}>
           {HEAT_LINES.map((line, i) => (
-            <div key={i} style={{ flex: 1, borderRadius: 1, background: line.r === 0 ? 'rgba(255,255,255,0.07)' : RISK_GUTTER[line.r], opacity: triggered ? (line.r === 0 ? 0.5 : 0.85) : 0, transition: `opacity 0.3s ease ${i * 0.03}s`, boxShadow: line.r === 3 ? `0 0 3px ${RISK_GUTTER[line.r]}80` : 'none' }} />
+            <div key={i} style={{
+              flex: 1, borderRadius: 1,
+              background: line.r === 0 ? (p.light ? 'rgba(0,0,0,0.09)' : 'rgba(255,255,255,0.07)') : risk.gutter[line.r],
+              opacity: triggered ? (line.r === 0 ? 0.5 : 0.85) : 0,
+              transition: `opacity 0.3s ease ${i * 0.03}s`,
+              boxShadow: line.r === 3 && !p.light ? `0 0 3px ${risk.gutter[line.r]}80` : 'none',
+            }} />
           ))}
         </div>
       </div>
-      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>
+
+      <div style={{ padding: '7px 18px', background: p.chrome, borderTop: `1px solid ${p.hair}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: p.faint }}>
           {riskCounts[3]} contradiction{riskCounts[3] !== 1 ? 's' : ''} · {riskCounts[2]} inconsistenc{riskCounts[2] !== 1 ? 'ies' : 'y'} · {riskCounts[1]} watch flag{riskCounts[1] !== 1 ? 's' : ''}
         </span>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Every line color-coded in real time</span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: p.faint }}>Every line color-coded in real time</span>
       </div>
     </div>
   )
@@ -688,14 +731,14 @@ const CONFLICTS_DATA = [
   { a: 'Mills',  b: 'Chen',  sev: 'MED',  topic: 'Q4 disclosure: Chen confirms, Mills denies knowledge' },
 ]
 
-function ScoreArc({ v, color, size = 92 }: { v: number; color: string; size?: number }) {
+function ScoreArc({ v, color, size = 92, track = 'rgba(255,255,255,0.07)' }: { v: number; color: string; size?: number; track?: string }) {
   const r = size * 0.38, cx = size / 2, cy = size / 2
   const circ = 2 * Math.PI * r
   const arc = circ * 0.75
   const fill = (v / 10) * arc
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(135deg)', display: 'block' }}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.07)"
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={track}
         strokeWidth={3.5} strokeDasharray={`${arc} ${circ - arc}`} strokeLinecap="round" />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={color}
         strokeWidth={3.5} strokeDasharray={`${fill} ${circ - fill}`} strokeLinecap="round"
@@ -706,6 +749,7 @@ function ScoreArc({ v, color, size = 92 }: { v: number; color: string; size?: nu
 }
 
 function IntelReportDemo() {
+  const p = usePalette()
   const [tab, setTab] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const [triggered, setTriggered] = useState(false)
@@ -735,36 +779,36 @@ function IntelReportDemo() {
 
   return (
     <div ref={ref} style={{
-      background: '#090909', border: '1px solid rgba(255,255,255,0.08)',
+      background: p.card, border: `1px solid ${p.border}`,
       borderRadius: 12, overflow: 'hidden',
-      boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
+      boxShadow: (p.light ? '0 30px 60px rgba(0,0,0,0.10)' : '0 40px 80px rgba(0,0,0,0.7)'),
       maxWidth: 820, margin: '0 auto',
     }}>
       {/* Chrome */}
-      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
-        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
+      <div style={{ background: p.chrome, borderBottom: `1px solid ${p.hair}`, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: (p.light ? 'rgba(0,0,0,0.12)' : '#222') }}/>)}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/reports/harmon-v-calloway
+          <div style={{ background: p.inset, border: `1px solid ${p.hair}`, borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: p.faint }}>
+            app.ithildin.io/reports/harmon-v-calloway
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ background: '#0c0c0c', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', padding: '0 14px' }}>
+      <div style={{ background: p.chrome, borderBottom: `1px solid ${p.hair}`, display: 'flex', padding: '0 14px' }}>
         {TABS.map((t, i) => (
           <button key={t} onClick={() => setTab(i)} style={{
             padding: '9px 14px', background: 'transparent', border: 'none',
             borderBottom: tab === i ? `1.5px solid ${TAB_COLORS[i]}` : '1.5px solid transparent',
             fontFamily: 'monospace', fontSize: '0.52rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-            color: tab === i ? 'rgba(255,255,255,0.78)' : 'rgba(255,255,255,0.22)',
+            color: tab === i ? p.body : p.faint,
             cursor: 'pointer', transition: 'all 0.18s ease', whiteSpace: 'nowrap',
           }}>
             {t}
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingRight: 2 }}>
-          <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.12)', letterSpacing: '0.05em' }}>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: p.faint, letterSpacing: '0.05em' }}>
             Harmon v. Calloway · 3 depositions
           </span>
         </div>
@@ -774,21 +818,21 @@ function IntelReportDemo() {
       {tab < 2 ? (
         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: 345 }}>
           {/* Score panel */}
-          <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', background: '#080808', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', gap: 10 }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.18em', color: 'rgba(255,255,255,0.18)', textTransform: 'uppercase', textAlign: 'center' }}>
+          <div style={{ borderRight: `1px solid ${p.hair}`, background: p.inset, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', gap: 10 }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.18em', color: p.faint, textTransform: 'uppercase', textAlign: 'center' }}>
               {tab === 0 ? 'Credibility Score' : 'Performance Score'}
             </p>
             <div style={{ position: 'relative', width: 92, height: 92 }}>
-              <ScoreArc v={trigger ? scoreVal : 0} color={scoreColor} />
+              <ScoreArc track={p.track} v={trigger ? scoreVal : 0} color={scoreColor} />
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.55rem', color: scoreColor, lineHeight: 1, filter: `drop-shadow(0 0 8px ${scoreColor}55)` }}>
                   {scoreVal}
                 </span>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.22)' }}>/10</span>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: p.faint }}>/10</span>
               </div>
             </div>
             <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.45)' }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: p.label }}>
                 {tab === 0 ? 'Robert Harmon' : 'Harmon v. Calloway'}
               </p>
               <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.12em', color: scoreColor, background: `${scoreColor}15`, border: `1px solid ${scoreColor}28`, borderRadius: 3, padding: '2px 7px', textTransform: 'uppercase' }}>
@@ -809,19 +853,19 @@ function IntelReportDemo() {
 
           {/* Metrics */}
           <div style={{ padding: '18px 20px', overflowY: 'auto' }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: p.faint, textTransform: 'uppercase', marginBottom: 16 }}>
               {tab === 0 ? 'Credibility Breakdown' : 'Strategy Breakdown'}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               {metrics.map((m, i) => (
                 <div key={m.label}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)' }}>{m.label}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: p.label }}>{m.label}</span>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: m.color, filter: `drop-shadow(0 0 3px ${m.color}50)` }}>
                       {m.disp ?? `${m.v}%`}
                     </span>
                   </div>
-                  <div style={{ height: 2.5, background: 'rgba(255,255,255,0.05)', borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
+                  <div style={{ height: 2.5, background: p.track, borderRadius: 2, marginBottom: 4, overflow: 'hidden' }}>
                     <div style={{
                       height: '100%', borderRadius: 2,
                       background: `linear-gradient(90deg, ${m.color}88, ${m.color})`,
@@ -830,7 +874,7 @@ function IntelReportDemo() {
                       transition: `width 0.75s cubic-bezier(.4,0,.2,1) ${i * 0.1}s`,
                     }} />
                   </div>
-                  <p style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.02em' }}>{m.note}</p>
+                  <p style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: p.faint, letterSpacing: '0.02em' }}>{m.note}</p>
                 </div>
               ))}
             </div>
@@ -840,23 +884,23 @@ function IntelReportDemo() {
         /* Cross-Witness */
         <div style={{ height: 345, display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
           {/* Witnesses */}
-          <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', padding: '18px 20px', overflowY: 'auto' }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+          <div style={{ borderRight: `1px solid ${p.hair}`, padding: '18px 20px', overflowY: 'auto' }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: p.faint, textTransform: 'uppercase', marginBottom: 16 }}>
               Witness Registry · 3
             </p>
             {CW.map((w, i) => (
-              <div key={w.name} style={{ paddingBottom: 14, marginBottom: i < CW.length - 1 ? 14 : 0, borderBottom: i < CW.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <div key={w.name} style={{ paddingBottom: 14, marginBottom: i < CW.length - 1 ? 14 : 0, borderBottom: i < CW.length - 1 ? `1px solid ${p.hair}` : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 7 }}>
                   <div>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>{w.name}</p>
-                    <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>{w.role}</p>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: p.body, marginBottom: 2 }}>{w.name}</p>
+                    <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: p.faint, letterSpacing: '0.04em' }}>{w.role}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: w.color, filter: `drop-shadow(0 0 4px ${w.color}50)`, display: 'block' }}>{w.score}</span>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.38rem', letterSpacing: '0.1em', color: w.color, opacity: 0.65, textTransform: 'uppercase' }}>{w.badge}</span>
                   </div>
                 </div>
-                <div style={{ height: 2, background: 'rgba(255,255,255,0.05)', borderRadius: 1, overflow: 'hidden', marginBottom: 5 }}>
+                <div style={{ height: 2, background: p.track, borderRadius: 1, overflow: 'hidden', marginBottom: 5 }}>
                   <div style={{
                     height: '100%',
                     background: `linear-gradient(90deg, ${w.color}60, ${w.color})`,
@@ -865,7 +909,7 @@ function IntelReportDemo() {
                     transition: `width 0.8s cubic-bezier(.4,0,.2,1) ${i * 0.12}s`,
                   }} />
                 </div>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: 'rgba(255,255,255,0.18)' }}>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', color: p.faint }}>
                   {w.vuln} impeachment point{w.vuln !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -874,15 +918,15 @@ function IntelReportDemo() {
 
           {/* Conflicts */}
           <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.16)', textTransform: 'uppercase', marginBottom: 16 }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '0.42rem', letterSpacing: '0.16em', color: p.faint, textTransform: 'uppercase', marginBottom: 16 }}>
               Testimony Conflicts · {CONFLICTS_DATA.length}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {CONFLICTS_DATA.map((c, i) => (
                 <div key={i} style={{
                   padding: '9px 11px',
-                  background: 'rgba(255,255,255,0.015)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: p.inset,
+                  border: `1px solid ${p.hair}`,
                   borderLeft: `2px solid ${c.sev === 'HIGH' ? '#ff4757' : '#ffa502'}`,
                   borderRadius: '0 4px 4px 0',
                   opacity: trigger ? 1 : 0,
@@ -890,22 +934,22 @@ function IntelReportDemo() {
                   transition: `opacity 0.4s ease ${i * 0.12 + 0.1}s, transform 0.4s ease ${i * 0.12 + 0.1}s`,
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: p.label, letterSpacing: '0.05em' }}>
                       {c.a} ↔ {c.b}
                     </span>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.1em', color: c.sev === 'HIGH' ? '#ff4757' : '#ffa502' }}>{c.sev}</span>
                   </div>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.63rem', fontWeight: 300, color: 'rgba(255,255,255,0.42)', lineHeight: 1.4 }}>{c.topic}</p>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.63rem', fontWeight: 300, color: p.label, lineHeight: 1.4 }}>{c.topic}</p>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-              <p style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.14)', textTransform: 'uppercase', marginBottom: 8 }}>
+            <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: `1px solid ${p.hair}` }}>
+              <p style={{ fontFamily: 'monospace', fontSize: '0.4rem', letterSpacing: '0.12em', color: p.faint, textTransform: 'uppercase', marginBottom: 8 }}>
                 Impeachment Priority
               </p>
               {[...CW].sort((a, b) => b.vuln - a.vuln).map(w => (
                 <div key={w.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 300, color: 'rgba(255,255,255,0.35)' }}>{w.name}</span>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 300, color: p.label }}>{w.name}</span>
                   <span style={{ fontFamily: 'monospace', fontSize: '0.52rem', color: w.color, filter: `drop-shadow(0 0 3px ${w.color}40)` }}>{w.vuln} pts</span>
                 </div>
               ))}
@@ -915,7 +959,7 @@ function IntelReportDemo() {
       )}
 
       {/* Footer */}
-      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ padding: '7px 18px', background: p.chrome, borderTop: `1px solid ${p.hair}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
           {[
             { dot: '#ff4757', label: '4.2 · Harmon · HIGH RISK' },
@@ -924,11 +968,11 @@ function IntelReportDemo() {
           ].map((f, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: f.dot, boxShadow: `0 0 4px ${f.dot}80` }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.14)' }}>{f.label}</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: p.faint }}>{f.label}</span>
             </div>
           ))}
         </div>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: p.faint }}>
           Generated · 01:14:32 post-deposition
         </span>
       </div>
@@ -1064,7 +1108,7 @@ function PsychProfileDemo() {
         {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/profile/harmon · psychological analysis
+            app.ithildin.io/profile/harmon · psychological analysis
           </div>
         </div>
         {/* Live indicator */}
@@ -1229,7 +1273,7 @@ export default function Product() {
         <p className="msg-line msg-line--center">
           It isn&rsquo;t a better lawyer across the table. It&rsquo;s a better record.
         </p>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65 }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', lineHeight: 1.65 }}>
           Live transcription, contradiction detection, and follow-up suggestions as testimony unfolds.
         </p>
       </section>
@@ -1240,13 +1284,13 @@ export default function Product() {
 
       {/* ── LIVE: Psych Profile + Heat Map ── */}
       {/* PsychProfile section hidden. Uncomment to restore
-      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Behavioral Intelligence</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             The witness&rsquo;s psychology.<br/>Mapped in real time.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
             Ithildin builds a live psychological profile as testimony unfolds, tracking defensiveness, deception patterns, and narrative integrity across every 30-minute interval.
           </p>
         </div>
@@ -1260,12 +1304,12 @@ export default function Product() {
         <div className="reveal" style={{ marginBottom: 48 }}>
           <p className="label" style={{ marginBottom: 18 }}>Deposition Heat Map</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
-            Every line. Color-coded<br/>by risk.
+            Every line.<br/>Color-coded.
           </h2>
           <p className="msg-line msg-line--center">
             Nothing you caught walks out of the room.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
             A visual transcript where clean testimony is green, inconsistencies are orange, and contradictions glow red. At a glance, see exactly where the deposition got dangerous.
           </p>
         </div>
@@ -1275,7 +1319,7 @@ export default function Product() {
       </section>
 
       {/* ── PRE-DEPOSITION: Master + Witness Chronology ── */}
-      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Before You Walk In</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
@@ -1284,7 +1328,7 @@ export default function Product() {
           <p className="msg-line msg-line--center">
             You did the prep. This makes sure none of it is wasted.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
             Upload your documents and Ithildin builds the case timeline and evidence map automatically. Gaps, conflicts, and all.
           </p>
         </div>
@@ -1303,7 +1347,7 @@ export default function Product() {
       </section>
 
       {/* ── POST-DEPOSITION: Analysis ── */}
-      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+      <section style={{ padding: '60px 52px 20px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Post-Deposition Intelligence</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
@@ -1312,7 +1356,7 @@ export default function Product() {
           <p className="msg-line msg-line--center">
             The gap isn&rsquo;t talent. It&rsquo;s what happens between the transcript and the brief.
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'var(--text-dim)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
             The moment testimony ends, Ithildin builds a complete intelligence report. Witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
           </p>
         </div>
@@ -1321,7 +1365,7 @@ export default function Product() {
         <IntelReportDemo />
       </section>
 
-      <section style={{ padding: '80px 52px 80px', borderTop: '1px solid rgba(255,255,255,0.06)', maxWidth: 1100, margin: '0 auto' }}>
+      <section style={{ padding: '80px 52px 80px', borderTop: '1px solid var(--border)', maxWidth: 1100, margin: '0 auto' }}>
         <div className="reveal" style={{ marginBottom: 60 }}>
           <p className="label" style={{ marginBottom: 18 }}>How It Works</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
@@ -1331,7 +1375,7 @@ export default function Product() {
             Your instincts, with citations.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', borderTop: '1px solid rgba(255,255,255,0.06)', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', borderTop: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>
           {[
             { n: '01', title: 'Upload Documents', body: 'Case files, prior testimony, contracts, exhibits. Ithildin ingests and indexes everything automatically.' },
             { n: '02', title: 'Receive Your Outline', body: 'Structured outline with AI-suggested questions and exhibit references, ready to refine.' },
@@ -1339,11 +1383,11 @@ export default function Product() {
             { n: '04', title: 'Review & Impeach', body: 'AI summaries, citations, a draft impeachment brief, and audio/video sync within minutes.' },
           ].map((s, i) => (
             <div key={s.n} className="reveal" style={{
-              padding: '44px 40px', borderRight: '1px solid rgba(255,255,255,0.06)',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              padding: '44px 40px', borderRight: '1px solid var(--border)',
+              borderBottom: '1px solid var(--border)',
               transitionDelay: `${(i % 2) * 0.1}s`,
             }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', color: '#1a1a1a', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 20 }}>{s.n}</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', color: 'var(--border-mid)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 20 }}>{s.n}</p>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', color: 'var(--white)', marginBottom: 10 }}>{s.title}</h3>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 300, color: 'var(--text-muted)', lineHeight: 1.65 }}>{s.body}</p>
             </div>
@@ -1351,7 +1395,7 @@ export default function Product() {
         </div>
       </section>
 
-      <section style={{ padding: '120px 52px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <section style={{ padding: '120px 52px', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
         <div className="reveal">
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.08, marginBottom: 20 }}>
             Built for firms that can&rsquo;t<br/>afford to miss anything.
