@@ -245,17 +245,56 @@ h1, h2, h3, h4 {
 
 [data-theme="light"] .feat-body { color: rgba(0,0,0,0.62); }
 
-.feat-sub {
+/* ── MESSAGE LINES ──
+   The persuasion copy. Deliberately brighter and larger than body text so it
+   reads second after the heading, not last. */
+.msg-line {
   font-family: var(--font-sans);
-  font-size: 0.74rem;
+  font-size: clamp(1rem, 1.4vw, 1.22rem);
   font-weight: 300;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.65;
-  max-width: 300px;
-  margin-top: 12px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: var(--white);
+}
+.msg-line--center {
+  max-width: 620px;
+  margin: 0 auto 18px;
 }
 
-[data-theme="light"] .feat-sub { color: rgba(0,0,0,0.45); }
+/* Same role, sized to sit inside a capability card */
+.feat-sub {
+  font-family: var(--font-sans);
+  font-size: 0.96rem;
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  max-width: 320px;
+  margin-top: 16px;
+}
+
+.demo-caption {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+/* Product page live-deposition demo: transcript + signals rail */
+.depo-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+}
+.chrono-scroll { overflow-x: auto; }
+
+@media (max-width: 860px) {
+  .depo-grid { grid-template-columns: 1fr; }
+  .depo-rail { border-left: none !important; border-top: 1px solid var(--border); }
+}
 
 .reveal {
   opacity: 0;
@@ -263,6 +302,23 @@ h1, h2, h3, h4 {
   transition: opacity 0.85s ease, transform 0.85s ease;
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Full-bleed image band used to break up two adjacent modules */
+.band-image {
+  width: 100%;
+  height: clamp(200px, 26vw, 360px);
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.band-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 62%;
+  display: block;
+}
+.band-image--cta img { object-position: center 42%; }
 
 .cursor-blink {
   display: inline-block;

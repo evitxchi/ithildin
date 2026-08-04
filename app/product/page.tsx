@@ -16,463 +16,534 @@ function useReveal() {
   }, [])
 }
 
+function useTheme() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  useEffect(() => {
+    const update = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+    update()
+    const observer = new MutationObserver(update)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+  return theme
+}
+
+/* Shared surface tokens so every demo on this page reads as one system,
+   in both light and dark. */
+function usePalette() {
+  const light = useTheme() === 'light'
+  return {
+    light,
+    card:    light ? '#ece9e3'          : '#0d0d0d',
+    chrome:  light ? '#e3dfd8'          : '#0a0a0a',
+    inset:   light ? '#f6f4f0'          : '#080808',
+    border:  light ? 'rgba(0,0,0,0.11)' : 'rgba(255,255,255,0.07)',
+    hair:    light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.045)',
+    heading: light ? '#141414'          : '#e9e9e9',
+    body:    light ? 'rgba(0,0,0,0.74)' : 'rgba(216,216,216,0.78)',
+    label:   light ? 'rgba(0,0,0,0.5)'  : 'rgba(200,200,200,0.34)',
+    faint:   light ? 'rgba(0,0,0,0.33)' : 'rgba(200,200,200,0.22)',
+    track:   light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)',
+  }
+}
+
+type Palette = ReturnType<typeof usePalette>
+
+/* Semantic issue tags. Muted enough to sit in the palette, distinct enough to scan. */
+const ISSUE_COLORS: Record<string, string> = {
+  'CONTRACT':      '#8f8f8f',
+  'CONTROLS GAP':  '#8f8f8f',
+  'KNOWLEDGE':     '#6f92d1',
+  'CONFLICT':      '#e0614f',
+  'CONTRADICTION': '#e0614f',
+  'SCIENTER':      '#e0614f',
+  'OMISSION':      '#e39a3c',
+  'MOTIVE':        '#c8a96e',
+  'AUTHORITY':     '#4fae7c',
+}
+
+function IssueChip({ label }: { label: string }) {
+  const c = ISSUE_COLORS[label] ?? '#8f8f8f'
+  return (
+    <span style={{
+      fontFamily: 'var(--font-sans)', fontSize: '0.48rem', fontWeight: 400,
+      letterSpacing: '0.09em', textTransform: 'uppercase', whiteSpace: 'nowrap',
+      color: c, background: `${c}1f`, border: `1px solid ${c}4d`,
+      borderRadius: 3, padding: '2px 6px', lineHeight: 1.5,
+    }}>{label}</span>
+  )
+}
+
+// ─── LIVE DEPOSITION ──────────────────────────────────────────────────────────
+
 const LINES = [
-  { s: 'Q', t: 'Mr. Harmon, you were present at the facility on March 14th?', q: true },
-  { s: 'A', t: 'Yes. I was there from six until approximately nine.', q: false },
-  { s: 'Q', t: 'Did you interact with Mr. Calloway that evening?', q: true },
-  { s: 'A', t: 'No. I never saw Calloway there.', q: false },
-  { s: 'Q', t: 'Exhibit 7. Your badge and Calloway\'s both accessed the server room at 7:43 PM.', q: true },
-  { s: 'A', t: "I... well, I may have seen him briefly. I didn't think it was relevant.", q: false,
-    flag: { type: 'Contradiction', detail: 'Contradicts "I never saw Calloway there." (4:12). Badge log confirms shared access at 7:43 PM.' } },
-  { s: 'Q', t: 'You testified moments ago that you never saw him. Which is accurate?', q: true },
-  { s: 'A', t: 'It was brief. I forgot.', q: false,
-    flag: { type: 'Blunder', detail: 'Claimed definitive absence, now claims memory lapse. Consider immediate impeachment.' } },
+  { ref: '4:06', s: 'Q', t: 'Mr. Harmon, you were present at the facility on March 14th?' },
+  { ref: '4:07', s: 'A', t: 'Yes. I was there from six until approximately nine.' },
+  { ref: '4:09', s: 'Q', t: 'Did you interact with Mr. Calloway that evening?' },
+  { ref: '4:12', s: 'A', t: 'No. I never saw Calloway there.' },
+  { ref: '4:15', s: 'Q', t: 'Exhibit 7. Your badge and Calloway’s both accessed the server room at 7:43 PM.', exhibit: 'EX. 7' },
+  {
+    ref: '7:31', s: 'A', t: 'I... well, I may have seen him briefly. I didn’t think it was relevant.',
+    flag: {
+      type: 'Contradiction', sev: 'HIGH', basis: 'FRE 613',
+      detail: 'Contradicts “I never saw Calloway there.” at 4:12. Exhibit 7 places both in the server room at 7:43 PM.',
+    },
+  },
+  { ref: '7:36', s: 'Q', t: 'You testified moments ago that you never saw him. Which is accurate?' },
+  {
+    ref: '7:40', s: 'A', t: 'It was brief. I forgot.',
+    flag: {
+      type: 'Memory lapse', sev: 'MED', basis: 'Impeachment',
+      detail: 'Definitive absence, now a memory lapse. The prior answer is already on the record.',
+    },
+  },
 ]
 
 function DepoDemo() {
-  const [shown, setShown] = useState<typeof LINES>([])
-  const [flagged, setFlagged] = useState<number[]>([])
-  const [contra, setContra] = useState(0)
-  const [blund, setBlund] = useState(0)
-  const [lineCount, setLineCount] = useState(47)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const idx = useRef(0)
+  const p = usePalette()
+  const [shown, setShown] = useState(0)
+  const bodyRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    let t: NodeJS.Timeout
-    function next() {
-      if (idx.current >= LINES.length) {
-        idx.current = 0
-        setShown([]); setFlagged([]); setContra(0); setBlund(0); setLineCount(47)
-        t = setTimeout(next, 1400); return
-      }
-      const i = idx.current++
-      const l = LINES[i]
-      setShown(prev => [...prev, l])
-      setLineCount(prev => prev + 3)
-      setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = 9999 }, 80)
-      if (l.flag) {
-        setTimeout(() => {
-          setFlagged(prev => [...prev, i])
-          if (l.flag!.type === 'Contradiction') setContra(c => c + 1)
-          else setBlund(b => b + 1)
-        }, 950)
-      }
-      t = setTimeout(next, l.q ? 1900 : 2500)
+    let cancelled = false
+    const timers: NodeJS.Timeout[] = []
+    function run() {
+      if (cancelled) return
+      setShown(0)
+      let t = 700
+      LINES.forEach((l, i) => {
+        timers.push(setTimeout(() => { if (!cancelled) setShown(i + 1) }, t))
+        t += l.flag ? 2400 : 1500
+      })
+      timers.push(setTimeout(run, t + 3200))
     }
-    t = setTimeout(next, 600)
-    return () => clearTimeout(t)
+    run()
+    return () => { cancelled = true; timers.forEach(clearTimeout) }
   }, [])
 
+  useEffect(() => {
+    const el = bodyRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [shown])
+
+  const visible = LINES.slice(0, shown)
+  const flags = visible.filter(l => l.flag).length
+  const exhibits = visible.filter(l => l.exhibit).length
+
+  const SIGNALS = [
+    { label: 'Contradictions', value: String(flags), hot: flags > 0 },
+    { label: 'Exhibits used', value: `${exhibits} / 7`, hot: false },
+    { label: 'Answers scored', value: String(visible.filter(l => l.s === 'A').length), hot: false },
+  ]
+
+  const lastFlag = [...visible].reverse().find(l => l.flag)?.flag
+
   return (
-    <div style={{
-      background: '#090909', border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 12, overflow: 'hidden',
-      boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
-      maxWidth: 820, margin: '0 auto',
-    }}>
-      {/* Chrome */}
-      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
-        {[1,2,3].map(d => <div key={d} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/depose/harmon-v-calloway
-          </div>
+    <div style={{ maxWidth: 1000, margin: '0 auto', background: p.card, border: `1px solid ${p.border}`, borderRadius: 10, overflow: 'hidden' }}>
+      {/* Title bar */}
+      <div style={{ padding: '10px 16px', background: p.chrome, borderBottom: `1px solid ${p.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <span style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+            {[0, 1, 2].map(i => (
+              <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', border: `1px solid ${p.border}`, background: p.track }} />
+            ))}
+          </span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.66rem', fontWeight: 300, color: p.body, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Harmon v. Calloway · Deposition of Robert Harmon
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#e74c3c', animation: 'pulse 1.2s ease-in-out infinite' }} />
+            <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(231,76,60,0.85)', letterSpacing: '0.08em' }}>REC</span>
+          </span>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: p.faint, letterSpacing: '0.04em' }}>02:14:07</span>
         </div>
       </div>
-      {/* App header */}
-      <div style={{ padding: '10px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', background: '#0b0b0b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(200,200,200,0.28)', letterSpacing: '0.04em' }}>
-          Harmon v. Calloway · Deposition of Robert Harmon
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#e74c3c', animation: 'pulse 1.5s ease-in-out infinite' }}/>
-            <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(231,76,60,0.8)', letterSpacing: '0.1em' }}>LIVE</span>
-          </div>
-          <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(255,255,255,0.14)' }}>01:14:32</span>
-        </div>
-      </div>
-      {/* Body */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 230px', height: 360 }}>
-        <div ref={scrollRef} style={{ overflowY: 'auto', padding: '16px 18px', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-          {shown.map((l, i) => (
-            <div key={i} style={{ display: 'flex', gap: 9, marginBottom: 12, animation: 'fadeUp 0.35s ease forwards' }}>
-              <span style={{
-                fontFamily: 'monospace', fontSize: '0.52rem',
-                color: l.q ? 'rgba(130,130,180,0.42)' : 'rgba(180,130,130,0.42)',
-                marginTop: 2, width: 10, flexShrink: 0,
-              }}>{l.s}</span>
-              <div style={{ flex: 1 }}>
+
+      <div className="depo-grid">
+        {/* Transcript */}
+        <div ref={bodyRef} style={{ padding: '16px 18px', height: 316, overflow: 'hidden', background: p.inset }}>
+          {visible.map((l, i) => (
+            <div key={l.ref} style={{ marginBottom: 12, animation: 'fadeUpFast 0.3s ease forwards' }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: p.faint, marginTop: 4, flexShrink: 0, letterSpacing: '0.04em', width: 24 }}>{l.ref}</span>
+                <span style={{
+                  fontFamily: 'monospace', fontSize: '0.5rem', marginTop: 3, flexShrink: 0,
+                  width: 13, height: 13, borderRadius: 2,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: l.s === 'Q' ? (p.light ? '#5a5a96' : '#9a9ad2') : (p.light ? '#96565a' : '#d29a9a'),
+                  border: `1px solid ${l.s === 'Q' ? (p.light ? '#5a5a9655' : '#9a9ad255') : (p.light ? '#96565a55' : '#d29a9a55')}`,
+                }}>{l.s}</span>
                 <p style={{
-                  fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 300,
-                  color: l.q ? 'rgba(180,180,200,0.62)' : 'rgba(215,215,215,0.82)',
-                  fontStyle: l.q ? 'italic' : 'normal', lineHeight: 1.58,
-                  ...(flagged.includes(i) ? {
-                    background: 'rgba(192,57,43,0.15)',
-                    borderBottom: '1px solid rgba(192,57,43,0.38)',
-                    borderRadius: 2, padding: '1px 3px',
-                  } : {}),
-                }}>{l.t}</p>
-                {flagged.includes(i) && l.flag && (
-                  <div style={{
-                    marginTop: 7, padding: '8px 11px',
-                    background: 'rgba(192,57,43,0.07)',
-                    border: '1px solid rgba(192,57,43,0.15)',
-                    borderLeft: '2px solid rgba(192,57,43,0.6)',
-                    borderRadius: '0 3px 3px 0',
-                    animation: 'fadeUp 0.3s ease forwards',
-                  }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(231,76,60,0.75)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
-                      {l.flag.type === 'Contradiction' ? '⚡ ' : '⚠ '}{l.flag.type}
-                    </span>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.67rem', fontWeight: 300, color: 'rgba(255,150,140,0.62)', lineHeight: 1.45 }}>
-                      {l.flag.detail}
-                    </p>
-                  </div>
-                )}
+                  fontFamily: 'var(--font-sans)', fontSize: '0.76rem', fontWeight: 300,
+                  color: l.s === 'Q' ? p.label : p.body,
+                  fontStyle: l.s === 'Q' ? 'italic' : 'normal',
+                  lineHeight: 1.55, flex: 1,
+                }}>
+                  {l.t}
+                  {l.exhibit && (
+                    <span style={{
+                      marginLeft: 6, fontFamily: 'monospace', fontSize: '0.46rem', fontStyle: 'normal',
+                      color: '#c8a96e', border: '1px solid rgba(200,169,110,0.4)', background: 'rgba(200,169,110,0.1)',
+                      borderRadius: 2, padding: '1px 5px', whiteSpace: 'nowrap', letterSpacing: '0.06em',
+                    }}>{l.exhibit}</span>
+                  )}
+                  {i === visible.length - 1 && <span className="cursor-blink" style={{ height: '0.72em', marginLeft: 3 }} />}
+                </p>
               </div>
+
+              {l.flag && (
+                <div style={{
+                  marginTop: 8, marginLeft: 47, padding: '9px 11px',
+                  background: 'rgba(192,57,43,0.08)',
+                  border: '1px solid rgba(192,57,43,0.2)',
+                  borderLeft: '2px solid rgba(192,57,43,0.65)',
+                  borderRadius: '0 4px 4px 0',
+                  animation: 'fadeUpFast 0.3s ease forwards',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.5rem', color: 'rgba(231,76,60,0.9)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                      {l.flag.type}
+                    </span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: 'rgba(231,76,60,0.9)', border: '1px solid rgba(231,76,60,0.35)', borderRadius: 2, padding: '1px 5px' }}>
+                      {l.flag.sev}
+                    </span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.44rem', color: p.faint, marginLeft: 'auto' }}>{l.flag.basis}</span>
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.66rem', fontWeight: 300, color: p.light ? 'rgba(150,50,42,0.9)' : 'rgba(255,175,165,0.75)', lineHeight: 1.45 }}>
+                    {l.flag.detail}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
-          <div style={{ display: 'flex', gap: 4, padding: '6px 0', opacity: 0.3 }}>
-            {[0,1,2].map(i => (
-              <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.5)', animation: `pulse ${0.8 + i * 0.2}s ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}/>
-            ))}
-          </div>
         </div>
-        {/* Sidebar */}
-        <div style={{ background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: 14, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.5rem', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', marginBottom: 9 }}>Suggested Follow-Ups</p>
-            {['Who authorized Calloway\'s access?', 'Why omitted from your declaration?', 'How many times revised your account?'].map((q, i) => (
-              <div key={i} style={{ padding: '6px 8px', marginBottom: 5, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 5 }}>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(200,200,200,0.45)', lineHeight: 1.4 }}>{q}</p>
+
+        {/* Signals rail */}
+        <div className="depo-rail" style={{ borderLeft: `1px solid ${p.border}`, padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.52rem', color: p.label, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Signals</span>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {SIGNALS.map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: p.label }}>{s.label}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: '0.7rem', color: s.hot ? '#e0614f' : p.body }}>{s.value}</span>
               </div>
             ))}
           </div>
-          <div style={{ padding: 14 }}>
-            <p style={{ fontFamily: 'monospace', fontSize: '0.5rem', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', marginBottom: 9 }}>Session</p>
-            {[
-              { l: 'Contradictions', v: contra, c: '#e74c3c' },
-              { l: 'Blunders', v: blund, c: '#c8a96e' },
-              { l: 'Lines', v: lineCount, c: 'rgba(180,180,180,0.4)' },
-              { l: 'Exhibits', v: 3, c: 'rgba(180,180,180,0.4)' },
-            ].map(s => (
-              <div key={s.l} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(120,120,120,0.5)' }}>{s.l}</span>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.68rem', color: s.c }}>{s.v}</span>
+
+          <div style={{ height: 1, background: p.hair }} />
+
+          {lastFlag ? (
+            <div style={{ animation: 'fadeUpFast 0.3s ease forwards' }}>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.48rem', color: p.faint, letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
+                Suggested action
+              </span>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.66rem', fontWeight: 300, color: p.body, lineHeight: 1.5, marginBottom: 10 }}>
+                Read the 4:12 answer back, then hand him Exhibit 7.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <span style={{
+                  fontFamily: 'var(--font-sans)', fontSize: '0.56rem', fontWeight: 400, textAlign: 'center',
+                  color: p.light ? '#f6f4f0' : '#0d0d0d', background: 'rgba(224,97,79,0.92)',
+                  borderRadius: 3, padding: '5px 10px',
+                }}>Impeach now</span>
+                <span style={{
+                  fontFamily: 'var(--font-sans)', fontSize: '0.56rem', fontWeight: 300, textAlign: 'center',
+                  color: p.body, border: `1px solid ${p.border}`, borderRadius: 3, padding: '4px 10px',
+                }}>Add to brief</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: p.faint, lineHeight: 1.5 }}>
+              Listening. Nothing conflicts with the record yet.
+            </p>
+          )}
         </div>
       </div>
-      {/* Waveform */}
-      <div style={{ padding: '7px 18px', background: '#0b0b0b', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ display: 'flex', gap: 1.5, alignItems: 'center', height: 14 }}>
+
+      {/* Status bar */}
+      <div style={{ padding: '8px 16px', background: p.chrome, borderTop: `1px solid ${p.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 1.5, alignItems: 'flex-end', height: 11 }}>
           {Array.from({ length: 22 }).map((_, i) => (
             <div key={i} style={{
-              width: 2, borderRadius: 1, background: 'rgba(180,180,180,0.18)',
-              height: `${4 + Math.abs(Math.sin(i * 0.85)) * 7}px`,
-              animation: `pulse ${0.5 + (i % 3) * 0.18}s ease-in-out infinite`,
-              animationDelay: `${i * 0.055}s`,
-            }}/>
+              width: 1.5, borderRadius: 1,
+              height: `${2.5 + Math.abs(Math.sin(i * 1.1)) * 7}px`,
+              background: p.light ? 'rgba(0,0,0,0.2)' : 'rgba(180,180,180,0.24)',
+              animation: `pulse ${0.55 + (i % 4) * 0.18}s ease-in-out infinite`,
+              animationDelay: `${i * 0.05}s`,
+            }} />
           ))}
         </div>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(255,255,255,0.13)' }}>Recording · 44.1kHz</span>
-        <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '0.5rem', color: 'rgba(255,255,255,0.11)' }}>
-          p.14 : l.{lineCount}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: p.faint }}>p.14 : l.{47 + shown * 3}</span>
+          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: flags ? '#e0614f' : p.faint }}>{flags} flagged</span>
+        </div>
       </div>
     </div>
   )
 }
 
-// ─── CASE TIMELINE ────────────────────────────────────────────────────────────
+// ─── MASTER CHRONOLOGY ────────────────────────────────────────────────────────
 
-const TL_EVENTS = [
-  { date: 'Jan 15', label: 'Contract signed',            src: 'contract.pdf',      conflict: false, above: true  },
-  { date: 'Feb 3',  label: 'Server access email chain',  src: 'email_chain.pdf',   conflict: false, above: false },
-  { date: 'Mar 7',  label: 'Badge credentials issued',   src: 'badge_records.pdf', conflict: false, above: true  },
-  { date: 'Mar 14', label: 'Harmon: "6–9pm, alone"',    src: 'live testimony',    conflict: true,  above: false, note: '↔ Conflicts with badge log' },
-  { date: 'Mar 14', label: 'Badge log: joint access 7:43pm', src: 'badge_log.pdf', conflict: true, above: true, note: '↔ Contradicts testimony' },
-  { date: 'Apr 2',  label: 'Incident report filed',      src: 'incident_001.pdf',  conflict: false, above: false },
-  { date: 'Apr 18', label: '"Never saw Calloway"',        src: 'declaration.pdf',   conflict: true,  above: true, note: 'Directly contradicted at deposition' },
+const CHRONO_PHASES = [
+  {
+    n: '1',
+    title: 'Access and Credentials',
+    range: 'Jan 2024 – Mar 2024',
+    desc: 'Badge provisioning, server room policy, and the run-up to March 14.',
+    entries: [
+      { date: '01/15/2024', text: 'Master services agreement executed between the parties.', actor: 'Counsel', issue: 'CONTRACT' },
+      { date: '02/03/2024', text: 'Email chain establishes the shared server room access protocol.', actor: 'Facilities', issue: 'KNOWLEDGE' },
+      { date: '03/07/2024', text: 'Badge credentials issued to Harmon and Calloway on a single request.', actor: 'Facilities', issue: 'CONTROLS GAP' },
+    ],
+  },
+  {
+    n: '2',
+    title: 'The Evening of March 14',
+    range: 'Mar 2024',
+    desc: 'Conflicting accounts of who was present, and when.',
+    entries: [
+      { date: '03/14/2024', text: 'Badge log records Harmon entry at 6:02 PM and Calloway at 7:41 PM.', actor: 'Badge System', issue: 'KNOWLEDGE' },
+      { date: '03/14/2024', text: 'Both badges register server room access inside the same two minutes.', actor: 'Badge System', issue: 'CONFLICT', flagged: true },
+      { date: '03/14/2024', text: 'Harmon accounts for the evening as six until nine, alone.', actor: 'Harmon', issue: 'CONTRADICTION' },
+    ],
+  },
+  {
+    n: '3',
+    title: 'Written Statements',
+    range: 'Apr 2024 – Jul 2024',
+    desc: 'Declarations that lock the witness in well before the deposition.',
+    entries: [
+      { date: '04/02/2024', text: 'Incident report filed with no mention of a second person present.', actor: 'Harmon', issue: 'OMISSION' },
+      { date: '04/18/2024', text: 'Sworn declaration states he never saw Calloway at the facility.', actor: 'Harmon', issue: 'SCIENTER' },
+    ],
+  },
 ]
-const TL_POS = [4, 18, 33, 49, 57, 73, 89]
 
-function CaseTimelineDemo() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [triggered, setTriggered] = useState(false)
+const CHRONO_TOTAL = CHRONO_PHASES.reduce((n, ph) => n + ph.entries.length, 0)
+
+function MasterChronologyDemo() {
+  const p = usePalette()
   const [shown, setShown] = useState(0)
-  const [lit, setLit] = useState(false)
 
   useEffect(() => {
-    const el = ref.current; if (!el) return
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
-    }, { threshold: 0.1 })
-    io.observe(el)
-    return () => io.disconnect()
+    let cancelled = false
+    const timers: NodeJS.Timeout[] = []
+    function run() {
+      if (cancelled) return
+      setShown(0)
+      for (let i = 0; i < CHRONO_TOTAL; i++) {
+        timers.push(setTimeout(() => { if (!cancelled) setShown(i + 1) }, 350 + i * 260))
+      }
+      timers.push(setTimeout(run, 350 + CHRONO_TOTAL * 260 + 3600))
+    }
+    run()
+    return () => { cancelled = true; timers.forEach(clearTimeout) }
   }, [])
 
-  useEffect(() => {
-    if (!triggered) return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    let interval: ReturnType<typeof setInterval>
-    function runCycle() {
-      setShown(0); setLit(false)
-      let n = 0
-      clearInterval(interval)
-      interval = setInterval(() => {
-        n++; setShown(n)
-        if (n >= TL_EVENTS.length) {
-          clearInterval(interval)
-          timers.push(
-            setTimeout(() => setLit(true), 700),
-            setTimeout(() => runCycle(), 6500),
-          )
-        }
-      }, 430)
-    }
-    runCycle()
-    return () => { clearInterval(interval); timers.forEach(clearTimeout) }
-  }, [triggered])
+  let counter = 0
 
   return (
-    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
-      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
-        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/case/harmon-v-calloway/timeline
+    <div style={{ maxWidth: 1000, margin: '0 auto', background: p.card, border: `1px solid ${p.border}`, borderRadius: 10, overflow: 'hidden' }}>
+      {/* Document header */}
+      <div style={{ padding: '16px 20px 14px', borderBottom: `1px solid ${p.border}`, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        <div style={{ minWidth: 0 }}>
+          <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', color: p.heading, letterSpacing: '-0.01em', marginBottom: 6 }}>
+            Master Chronology
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontFamily: 'var(--font-sans)', fontSize: '0.58rem', fontWeight: 300, color: p.label }}>
+            <span><span style={{ color: p.body }}>Matter:</span> Harmon v. Calloway</span>
+            <span style={{ color: p.faint }}>·</span>
+            <span>Jan 2024 – Jul 2024</span>
+            <span style={{ color: p.faint }}>·</span>
+            <span>3 phases</span>
+            <span style={{ color: p.faint }}>·</span>
+            <span>{CHRONO_TOTAL} entries</span>
+            <span style={{ color: p.faint }}>·</span>
+            <span style={{ color: '#c8a96e' }}>Attorney Work Product</span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00d2d3', animation: 'pulse 2s ease-in-out infinite' }}/>
-          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#00d2d3', letterSpacing: '0.1em' }}>BUILDING</span>
-        </div>
+        <span style={{
+          fontFamily: 'var(--font-sans)', fontSize: '0.56rem', fontWeight: 300, whiteSpace: 'nowrap',
+          color: p.body, border: `1px solid ${p.border}`, borderRadius: 3, padding: '4px 10px',
+        }}>Collapse all</span>
       </div>
-      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Case Timeline · Harmon v. Calloway</span>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: lit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
-          {shown}/{TL_EVENTS.length} events{lit ? ' · 3 conflicts detected' : ''}
-        </span>
-      </div>
-      {/* Timeline */}
-      <div style={{ height: 270, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', left: '2%', right: '2%', top: '50%', height: 1, background: 'rgba(255,255,255,0.07)' }} />
-        {TL_EVENTS.map((ev, i) => {
-          const visible = i < shown
-          const isConflict = ev.conflict && lit
-          const nodeC = isConflict ? '#ff4757' : (ev.src === 'live testimony' ? '#a29bfe' : '#00d2d3')
-          const labelStyle = { fontFamily: 'var(--font-sans)' as const, fontSize: '0.57rem', fontWeight: 300, color: isConflict ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.4)', lineHeight: 1.3, transition: 'color 0.4s' }
-          const dateStyle = { fontFamily: 'monospace' as const, fontSize: '0.39rem', color: nodeC, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.4s', whiteSpace: 'nowrap' as const }
-          const srcStyle = { fontFamily: 'monospace' as const, fontSize: '0.35rem', color: 'rgba(255,255,255,0.15)', marginTop: 2 }
-          const noteStyle = { fontFamily: 'monospace' as const, fontSize: '0.37rem', color: '#ff4757', marginTop: 3 }
 
-          return (
-            <div key={i} style={{ position: 'absolute', left: `${TL_POS[i]}%`, top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: visible ? 1 : 0, transition: 'opacity 0.3s', zIndex: 2 }}>
-              {ev.above && (
-                <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', textAlign: 'center', maxWidth: 90 }}>
-                  <p style={dateStyle}>{ev.date}</p>
-                  <p style={labelStyle}>{ev.label}</p>
-                  {isConflict && ev.note && <p style={noteStyle}>{ev.note}</p>}
-                  <p style={srcStyle}>{ev.src}</p>
+      {/* Phases */}
+      <div style={{ padding: '4px 20px 18px' }}>
+        {CHRONO_PHASES.map(ph => (
+          <div key={ph.n} style={{ paddingTop: 18 }}>
+            {/* Phase header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+              <span style={{
+                width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 2,
+                border: `1px solid ${p.border}`, background: p.inset,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'monospace', fontSize: '0.5rem', color: p.label,
+              }}>{ph.n}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: '0.95rem', color: p.heading, letterSpacing: '-0.005em' }}>{ph.title}</span>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', fontWeight: 300, color: p.faint, whiteSpace: 'nowrap' }}>{ph.range}</span>
                 </div>
-              )}
-              <div style={{ width: isConflict ? 11 : 8, height: isConflict ? 11 : 8, borderRadius: '50%', background: nodeC, boxShadow: isConflict ? `0 0 14px ${nodeC}, 0 0 24px ${nodeC}50` : `0 0 4px ${nodeC}60`, animation: isConflict ? 'pulse 1.2s ease-in-out infinite' : 'none', transition: 'all 0.35s ease', flexShrink: 0 }} />
-              {!ev.above && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', textAlign: 'center', maxWidth: 90 }}>
-                  <p style={dateStyle}>{ev.date}</p>
-                  <p style={labelStyle}>{ev.label}</p>
-                  {isConflict && ev.note && <p style={noteStyle}>{ev.note}</p>}
-                  <p style={srcStyle}>{ev.src}</p>
-                </div>
-              )}
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, fontStyle: 'italic', color: p.label, marginTop: 3, lineHeight: 1.5 }}>
+                  {ph.desc}
+                </p>
+              </div>
             </div>
-          )
-        })}
+
+            {/* Entries on a rail */}
+            <div style={{ paddingLeft: 8, borderLeft: `1px solid ${p.hair}`, marginLeft: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {ph.entries.map(e => {
+                const visible = counter++ < shown
+                return (
+                  <div key={e.date + e.text} style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '7px 11px',
+                    background: p.inset,
+                    border: `1px solid ${e.flagged ? 'rgba(200,169,110,0.4)' : p.hair}`,
+                    borderRadius: 4,
+                    opacity: visible ? 1 : 0,
+                    transform: visible ? 'none' : 'translateY(6px)',
+                    transition: 'opacity 0.35s ease, transform 0.35s ease',
+                  }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: p.faint, flexShrink: 0, letterSpacing: '0.02em' }}>{e.date}</span>
+                    <span style={{
+                      fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: p.body,
+                      flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>{e.text}</span>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.56rem', fontWeight: 300, color: p.label, flexShrink: 0, whiteSpace: 'nowrap' }}>{e.actor}</span>
+                    <IssueChip label={e.issue} />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </div>
-      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 14 }}>
-          {[['#00d2d3','Document'],['#a29bfe','Testimony'],['#ff4757','Conflict']].map(([c,l]) => (
-            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}80` }}/>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>{l}</span>
-            </div>
-          ))}
-        </div>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Auto-populates as documents are uploaded</span>
+
+      {/* Footer */}
+      <div style={{ padding: '8px 20px', background: p.chrome, borderTop: `1px solid ${p.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: p.faint, letterSpacing: '0.02em' }}>
+          {Math.min(shown, CHRONO_TOTAL)} / {CHRONO_TOTAL} entries built from your documents
+        </span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#c8a96e', letterSpacing: '0.06em' }}>2 CONFLICTS</span>
       </div>
     </div>
   )
 }
 
-// ─── DOCUMENT WEB ─────────────────────────────────────────────────────────────
+// ─── WITNESS CHRONOLOGY ───────────────────────────────────────────────────────
 
-const DOC_NODES = [
-  { id: 'contract',    label: 'contract.pdf',       x: 80,  y: 140, type: 'doc'       },
-  { id: 'email',       label: 'email_chain.pdf',    x: 205, y: 205, type: 'doc'       },
-  { id: 'badge_rec',   label: 'badge_records.pdf',  x: 375, y: 52,  type: 'doc'       },
-  { id: 'badge_log',   label: 'badge_log.pdf',      x: 495, y: 130, type: 'doc'       },
-  { id: 'exhibit_7',   label: 'exhibit_7.pdf',      x: 630, y: 68,  type: 'exhibit'   },
-  { id: 'incident',    label: 'incident_001.pdf',   x: 630, y: 200, type: 'doc'       },
-  { id: 'testimony',   label: 'testimony',          x: 225, y: 88,  type: 'testimony' },
-  { id: 'declaration', label: 'declaration.pdf',    x: 95,  y: 205, type: 'doc'       },
+const WITNESS_ROWS = [
+  {
+    date: '03/07/2024', ex: 'Ex. 3', actors: 'Facilities; Harmon',
+    fact: 'Badge credentials issued to Harmon and Calloway on a single request.',
+    issue: 'CONTROLS GAP',
+    use: 'Establishes both men held access well before the evening in question.',
+  },
+  {
+    date: '03/14/2024', ex: 'Ex. 7', actors: 'Badge System',
+    fact: 'Both badges register server room access at 7:43 PM.',
+    issue: 'CONFLICT',
+    use: 'Anchor exhibit. Confront with the timestamp before allowing any qualification.',
+  },
+  {
+    date: '04/18/2024', ex: 'Ex. 11', actors: 'Harmon',
+    fact: 'Sworn declaration states he never saw Calloway at the facility.',
+    issue: 'SCIENTER',
+    use: 'Lock in the declaration first, then hand him Exhibit 7.',
+  },
+  {
+    date: '07/31/2024', ex: 'Ex. 14', actors: 'Harmon; Counsel',
+    fact: 'Interrogatory response omits the shared access entirely.',
+    issue: 'OMISSION',
+    use: 'Use to show the omission repeated, rather than a single lapse.',
+  },
 ]
 
-const DOC_EDGES = [
-  { from: 'contract',    to: 'email',      conflict: false },
-  { from: 'email',       to: 'badge_rec',  conflict: false },
-  { from: 'badge_rec',   to: 'badge_log',  conflict: false },
-  { from: 'badge_log',   to: 'exhibit_7',  conflict: false },
-  { from: 'badge_log',   to: 'incident',   conflict: false },
-  { from: 'contract',    to: 'testimony',  conflict: false },
-  { from: 'testimony',   to: 'badge_log',  conflict: true  },
-  { from: 'testimony',   to: 'declaration',conflict: true  },
-]
+const WITNESS_COLS = ['Date', 'Ex.', 'Actor(s)', 'Event / Fact', 'Issue', 'Deposition Use']
 
-function DocWebDemo() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [triggered, setTriggered] = useState(false)
-  const [nodeCount, setNodeCount] = useState(0)
-  const [edgeCount, setEdgeCount] = useState(0)
-  const [conflictsLit, setConflictsLit] = useState(false)
+function WitnessChronologyDemo() {
+  const p = usePalette()
+  const [shown, setShown] = useState(0)
 
   useEffect(() => {
-    const el = ref.current; if (!el) return
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setTriggered(true); io.disconnect() }
-    }, { threshold: 0.1 })
-    io.observe(el)
-    return () => io.disconnect()
+    let cancelled = false
+    const timers: NodeJS.Timeout[] = []
+    function run() {
+      if (cancelled) return
+      setShown(0)
+      WITNESS_ROWS.forEach((_, i) => {
+        timers.push(setTimeout(() => { if (!cancelled) setShown(i + 1) }, 400 + i * 420))
+      })
+      timers.push(setTimeout(run, 400 + WITNESS_ROWS.length * 420 + 3600))
+    }
+    run()
+    return () => { cancelled = true; timers.forEach(clearTimeout) }
   }, [])
 
-  useEffect(() => {
-    if (!triggered) return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    let interval: ReturnType<typeof setInterval>
-
-    function runCycle() {
-      setNodeCount(0); setEdgeCount(0); setConflictsLit(false)
-      let n = 0
-      clearInterval(interval)
-      interval = setInterval(() => {
-        n++; setNodeCount(n)
-        if (n >= DOC_NODES.length) {
-          clearInterval(interval)
-          let e = 0
-          const edgeInterval = setInterval(() => {
-            e++; setEdgeCount(e)
-            if (e >= DOC_EDGES.length) {
-              clearInterval(edgeInterval)
-              timers.push(
-                setTimeout(() => setConflictsLit(true), 500),
-                setTimeout(() => runCycle(), 7000),
-              )
-            }
-          }, 200)
-          timers.push(edgeInterval as unknown as ReturnType<typeof setTimeout>)
-        }
-      }, 280)
-      timers.push(interval as unknown as ReturnType<typeof setTimeout>)
-    }
-    runCycle()
-    return () => { clearInterval(interval); timers.forEach(clearTimeout) }
-  }, [triggered])
-
-  const nodeMap = Object.fromEntries(DOC_NODES.map(n => [n.id, n]))
-  const nodeColor = (type: string) => type === 'testimony' ? '#a29bfe' : type === 'exhibit' ? '#00d2d3' : 'rgba(255,255,255,0.25)'
-  const W = 780, H = 260
-
   return (
-    <div ref={ref} style={{ background: '#090909', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.7)', maxWidth: 820, margin: '0 auto' }}>
-      <div style={{ background: '#0f0f0f', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
-        {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/case/harmon-v-calloway/evidence-map
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#a29bfe', animation: 'pulse 2s ease-in-out infinite' }}/>
-          <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#a29bfe', letterSpacing: '0.1em' }}>MAPPING</span>
+    <div style={{ maxWidth: 1000, margin: '0 auto', background: p.card, border: `1px solid ${p.border}`, borderRadius: 10, overflow: 'hidden' }}>
+      {/* Document header */}
+      <div style={{ padding: '16px 20px 14px', borderBottom: `1px solid ${p.border}` }}>
+        <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', color: p.heading, letterSpacing: '-0.01em', marginBottom: 6 }}>
+          Witness Chronology
+        </h4>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontFamily: 'var(--font-sans)', fontSize: '0.58rem', fontWeight: 300, color: p.label }}>
+          <span style={{ color: p.body }}>Harmon, R.</span>
+          <span style={{ fontStyle: 'italic' }}>Facilities Lead / Central Access Witness</span>
+          <span style={{ color: p.faint }}>·</span>
+          <span>{WITNESS_ROWS.length} anchor exhibits</span>
+          <span style={{ color: p.faint }}>·</span>
+          <span style={{ color: '#c8a96e' }}>Attorney Work Product</span>
         </div>
       </div>
-      <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Evidence Web · Harmon v. Calloway</span>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: conflictsLit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
-          {nodeCount} nodes · {edgeCount} connections{conflictsLit ? ' · 2 conflict edges' : ''}
-        </span>
+
+      {/* Table */}
+      <div className="chrono-scroll">
+        <table style={{ width: '100%', minWidth: 820, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: p.inset }}>
+              {WITNESS_COLS.map(c => (
+                <th key={c} style={{
+                  textAlign: 'left', padding: '8px 12px',
+                  borderBottom: `1px solid ${p.border}`,
+                  fontFamily: 'var(--font-sans)', fontSize: '0.48rem', fontWeight: 400,
+                  letterSpacing: '0.14em', textTransform: 'uppercase', color: p.label,
+                  whiteSpace: 'nowrap',
+                }}>{c}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {WITNESS_ROWS.map((r, i) => {
+              const visible = i < shown
+              return (
+                <tr key={r.ex} style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'none' : 'translateY(6px)',
+                  transition: 'opacity 0.35s ease, transform 0.35s ease',
+                }}>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top', fontFamily: 'monospace', fontSize: '0.5rem', color: p.faint, whiteSpace: 'nowrap' }}>{r.date}</td>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top', fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 400, color: p.heading, whiteSpace: 'nowrap' }}>{r.ex}</td>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top', fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: p.label, whiteSpace: 'nowrap' }}>{r.actors}</td>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 300, color: p.body, lineHeight: 1.5, minWidth: 220 }}>{r.fact}</td>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top' }}><IssueChip label={r.issue} /></td>
+                  <td style={{ padding: '11px 12px', borderBottom: `1px solid ${p.hair}`, verticalAlign: 'top', fontFamily: 'var(--font-sans)', fontSize: '0.64rem', fontWeight: 300, fontStyle: 'italic', color: p.label, lineHeight: 1.5, minWidth: 220 }}>{r.use}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
-      <div style={{ padding: '10px 20px', background: '#080808' }}>
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
-          {/* Edges */}
-          {DOC_EDGES.map((edge, i) => {
-            const a = nodeMap[edge.from], b = nodeMap[edge.to]
-            const visible = i < edgeCount
-            const isConflict = edge.conflict && conflictsLit
-            const len = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
-            return (
-              <line key={i}
-                x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                stroke={isConflict ? '#ff4757' : 'rgba(255,255,255,0.12)'}
-                strokeWidth={isConflict ? 1.5 : 1}
-                strokeDasharray={len}
-                strokeDashoffset={visible ? 0 : len}
-                style={{
-                  transition: `stroke-dashoffset 0.5s ease ${i * 0.1}s, stroke 0.4s ease, stroke-width 0.3s`,
-                  filter: isConflict ? 'drop-shadow(0 0 4px #ff4757)' : 'none',
-                }}
-              />
-            )
-          })}
-          {/* Nodes */}
-          {DOC_NODES.map((node, i) => {
-            const visible = i < nodeCount
-            const color = nodeColor(node.type)
-            const isConflictNode = conflictsLit && (node.id === 'testimony' || node.id === 'declaration')
-            return (
-              <g key={node.id} style={{ opacity: visible ? 1 : 0, transition: `opacity 0.3s ease ${i * 0.05}s` }}>
-                <circle cx={node.x} cy={node.y} r={isConflictNode ? 7 : 5}
-                  fill={isConflictNode ? 'rgba(255,71,87,0.15)' : 'rgba(255,255,255,0.04)'}
-                  stroke={isConflictNode ? '#ff4757' : color}
-                  strokeWidth={isConflictNode ? 1.5 : 1}
-                  style={{ filter: isConflictNode ? 'drop-shadow(0 0 6px #ff4757)' : `drop-shadow(0 0 3px ${color}60)`, transition: 'all 0.4s ease' }}
-                />
-                <text x={node.x} y={node.y + (node.type === 'testimony' ? -12 : 16)}
-                  textAnchor="middle" fontFamily="monospace" fontSize="7.5"
-                  fill={isConflictNode ? 'rgba(255,120,120,0.65)' : 'rgba(255,255,255,0.22)'}
-                  style={{ transition: 'fill 0.4s' }}>
-                  {node.label}
-                </text>
-              </g>
-            )
-          })}
-          {/* Conflict labels on edges */}
-          {conflictsLit && DOC_EDGES.filter(e => e.conflict).map((edge, i) => {
-            const a = nodeMap[edge.from], b = nodeMap[edge.to]
-            const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2
-            return (
-              <text key={i} x={mx} y={my - 5} textAnchor="middle" fontFamily="monospace" fontSize="6.5"
-                fill="rgba(255,71,87,0.65)" letterSpacing="0.5"
-                style={{ animation: 'fadeUp 0.4s ease forwards' }}>
-                CONFLICT
-              </text>
-            )
-          })}
-        </svg>
-      </div>
-      <div style={{ padding: '7px 18px', background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 14 }}>
-          {[['rgba(255,255,255,0.25)','Document'],['#00d2d3','Exhibit'],['#a29bfe','Testimony'],['#ff4757','Conflict']].map(([c,l]) => (
-            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}` }}/>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.18)' }}>{l}</span>
-            </div>
-          ))}
-        </div>
-        <span style={{ fontFamily: 'monospace', fontSize: '0.42rem', color: 'rgba(255,255,255,0.1)' }}>Connections light up as testimony references evidence</span>
+
+      {/* Footer */}
+      <div style={{ padding: '8px 20px', background: p.chrome, borderTop: `1px solid ${p.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: p.faint }}>Ordered by date · grouped by witness</span>
+        <span style={{ fontFamily: 'monospace', fontSize: '0.48rem', color: '#c8a96e', letterSpacing: '0.06em' }}>EXPORT OUTLINE</span>
       </div>
     </div>
   )
@@ -1155,7 +1226,7 @@ export default function Product() {
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3rem, 6vw, 5.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1, marginBottom: 20 }}>
           Watch Ithildin work
         </h1>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+        <p className="msg-line msg-line--center">
           It isn&rsquo;t a better lawyer across the table. It&rsquo;s a better record.
         </p>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65 }}>
@@ -1191,7 +1262,7 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             Every line. Color-coded<br/>by risk.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+          <p className="msg-line msg-line--center">
             Nothing you caught walks out of the room.
           </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
@@ -1203,14 +1274,14 @@ export default function Product() {
         <HeatMapDemo />
       </section>
 
-      {/* ── PRE-DEPOSITION: Timeline + Evidence Web ── */}
+      {/* ── PRE-DEPOSITION: Master + Witness Chronology ── */}
       <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Before You Walk In</p>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             The entire case story.<br/>One screen.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+          <p className="msg-line msg-line--center">
             You did the prep. This makes sure none of it is wasted.
           </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
@@ -1220,15 +1291,15 @@ export default function Product() {
       </section>
       <section style={{ padding: '0 52px 48px' }}>
         <div className="reveal" style={{ marginBottom: 16 }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>Case Timeline</p>
+          <p className="demo-caption">Master Chronology</p>
         </div>
-        <CaseTimelineDemo />
+        <MasterChronologyDemo />
       </section>
       <section style={{ padding: '0 52px 80px' }}>
         <div className="reveal" style={{ marginBottom: 16 }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 300, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>Evidence Web</p>
+          <p className="demo-caption">Witness Chronology</p>
         </div>
-        <DocWebDemo />
+        <WitnessChronologyDemo />
       </section>
 
       {/* ── POST-DEPOSITION: Analysis ── */}
@@ -1238,7 +1309,7 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             Every deposition.<br/>Scored. Analyzed. Mapped.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+          <p className="msg-line msg-line--center">
             The gap isn&rsquo;t talent. It&rsquo;s what happens between the transcript and the brief.
           </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
@@ -1256,7 +1327,7 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
             Four steps.<br/>Complete intelligence.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, marginTop: 16 }}>
+          <p className="msg-line" style={{ marginTop: 18 }}>
             Your instincts, with citations.
           </p>
         </div>
@@ -1285,7 +1356,7 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.08, marginBottom: 20 }}>
             Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 40 }}>
+          <p className="msg-line" style={{ marginBottom: 44 }}>
             Assume the other side is already running it.
           </p>
           <Link href="/demo" className="btn btn-solid btn-rect">
