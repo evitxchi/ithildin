@@ -21,9 +21,9 @@ const LINES = [
   { s: 'A', t: 'Yes. I was there from six until approximately nine.', q: false },
   { s: 'Q', t: 'Did you interact with Mr. Calloway that evening?', q: true },
   { s: 'A', t: 'No. I never saw Calloway there.', q: false },
-  { s: 'Q', t: 'Exhibit 7 — your badge and Calloway\'s both accessed the server room at 7:43 PM.', q: true },
-  { s: 'A', t: "I — well, I may have seen him briefly. I didn't think it was relevant.", q: false,
-    flag: { type: 'Contradiction', detail: 'Contradicts "I never saw Calloway there." (4:12) — Badge log confirms shared access at 7:43 PM.' } },
+  { s: 'Q', t: 'Exhibit 7. Your badge and Calloway\'s both accessed the server room at 7:43 PM.', q: true },
+  { s: 'A', t: "I... well, I may have seen him briefly. I didn't think it was relevant.", q: false,
+    flag: { type: 'Contradiction', detail: 'Contradicts "I never saw Calloway there." (4:12). Badge log confirms shared access at 7:43 PM.' } },
   { s: 'Q', t: 'You testified moments ago that you never saw him. Which is accurate?', q: true },
   { s: 'A', t: 'It was brief. I forgot.', q: false,
     flag: { type: 'Blunder', detail: 'Claimed definitive absence, now claims memory lapse. Consider immediate impeachment.' } },
@@ -83,7 +83,7 @@ function DepoDemo() {
       {/* App header */}
       <div style={{ padding: '10px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', background: '#0b0b0b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(200,200,200,0.28)', letterSpacing: '0.04em' }}>
-          Harmon v. Calloway — Deposition of Robert Harmon
+          Harmon v. Calloway · Deposition of Robert Harmon
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -253,7 +253,7 @@ function CaseTimelineDemo() {
         </div>
       </div>
       <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Case Timeline — Harmon v. Calloway</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Case Timeline · Harmon v. Calloway</span>
         <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: lit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
           {shown}/{TL_EVENTS.length} events{lit ? ' · 3 conflicts detected' : ''}
         </span>
@@ -400,7 +400,7 @@ function DocWebDemo() {
         </div>
       </div>
       <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Evidence Web — Harmon v. Calloway</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Evidence Web · Harmon v. Calloway</span>
         <span style={{ fontFamily: 'monospace', fontSize: '0.46rem', color: conflictsLit ? '#ff4757' : 'rgba(255,255,255,0.2)', transition: 'color 0.4s' }}>
           {nodeCount} nodes · {edgeCount} connections{conflictsLit ? ' · 2 conflict edges' : ''}
         </span>
@@ -488,17 +488,17 @@ const HEAT_LINES = [
   { s: 'Q', t: 'What was your purpose at the facility?',                          r: 0 },
   { s: 'A', t: 'Routine server maintenance. Standard check.',                     r: 0 },
   { s: 'Q', t: 'Were you accompanied by anyone that evening?',                    r: 0 },
-  { s: 'A', t: 'No, I was alone the entire time.',                                r: 1, note: 'Watch — inconsistent with badge log' },
-  { s: 'Q', t: 'Exhibit 3 — your badge log shows entry at 7:43 PM.',             r: 0 },
-  { s: 'A', t: 'That log... may have errors in it.',                              r: 2, note: 'Evasion — challenging document integrity' },
+  { s: 'A', t: 'No, I was alone the entire time.',                                r: 1, note: 'Watch: inconsistent with badge log' },
+  { s: 'Q', t: 'Exhibit 3. Your badge log shows entry at 7:43 PM.',             r: 0 },
+  { s: 'A', t: 'That log... may have errors in it.',                              r: 2, note: 'Evasion: challenging document integrity' },
   { s: 'Q', t: "You're saying the facility's badge log is inaccurate?",           r: 0 },
-  { s: 'A', t: 'I... yes. It sometimes misrecords entries.',                      r: 2, note: 'Hedging — qualified denial, evasion pattern' },
-  { s: 'Q', t: 'Exhibit 7 — Calloway\'s badge, same exact timestamp as yours.', r: 0 },
-  { s: 'A', t: "I may have seen him briefly. I didn't think it was relevant.",    r: 3, note: 'CONTRADICTION — "I never saw Calloway" (4:12)' },
+  { s: 'A', t: 'I... yes. It sometimes misrecords entries.',                      r: 2, note: 'Hedging: qualified denial, evasion pattern' },
+  { s: 'Q', t: 'Exhibit 7. Calloway\'s badge, same exact timestamp as yours.', r: 0 },
+  { s: 'A', t: "I may have seen him briefly. I didn't think it was relevant.",    r: 3, note: 'CONTRADICTION: "I never saw Calloway" (4:12)' },
   { s: 'Q', t: 'You testified moments ago you never saw him. Which is accurate?', r: 0 },
-  { s: 'A', t: 'It was brief. I forgot.',                                         r: 3, note: 'Memory lapse — consider immediate impeachment' },
+  { s: 'A', t: 'It was brief. I forgot.',                                         r: 3, note: 'Memory lapse: consider immediate impeachment' },
   { s: 'Q', t: 'How many times have you revised this account today?',             r: 0 },
-  { s: 'A', t: 'This is the first time.',                                         r: 3, note: 'DEMONSTRABLY FALSE — see declaration 4/18' },
+  { s: 'A', t: 'This is the first time.',                                         r: 3, note: 'DEMONSTRABLY FALSE: see declaration 4/18' },
 ]
 
 const RISK_BG   = ['rgba(255,255,255,0.02)', 'rgba(253,203,110,0.12)', 'rgba(255,165,2,0.18)', 'rgba(255,71,87,0.18)']
@@ -531,7 +531,7 @@ function HeatMapDemo() {
         </div>
       </div>
       <div style={{ padding: '8px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Deposition Heat Map — Robert Harmon</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>Deposition Heat Map · Robert Harmon</span>
         <div style={{ display: 'flex', gap: 12 }}>
           {[['#2ed573','Clean',riskCounts[0]],['#fdcb6e','Watch',riskCounts[1]],['#ffa502','Inconsistent',riskCounts[2]],['#ff4757','Contradiction',riskCounts[3]]].map(([c,l,n]) => (
             <div key={l as string} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -591,7 +591,7 @@ function HeatMapDemo() {
 
 const W_METRICS = [
   { label: 'Consistency Index',         v: 34, color: '#ff4757', note: '12 deviations flagged · page:line cited' },
-  { label: 'Evasion Rate',              v: 67, color: '#ffa502', note: 'Deflection cluster — Qs 4, 7, 11, 14' },
+  { label: 'Evasion Rate',              v: 67, color: '#ffa502', note: 'Deflection cluster: Qs 4, 7, 11, 14' },
   { label: 'Contradiction Density',     v: 83, color: '#ff4757', disp: '8.3/hr', note: '2.1× above firm historical average' },
   { label: 'Exhibit Response Accuracy', v: 41, color: '#ffa502', note: 'Recall failure on Ex. 3, 7, 12' },
   { label: 'Correction Frequency',      v: 60, color: '#fd79a8', disp: '6×', note: '4 self-amendments on material facts' },
@@ -600,7 +600,7 @@ const W_METRICS = [
 const D_METRICS = [
   { label: 'Question Efficiency',       v: 82, color: '#2ed573', note: 'Strong productive-to-total ratio' },
   { label: 'Follow-Up Capture Rate',    v: 71, color: '#1e90ff', note: '4 AI-suggested threads not pursued' },
-  { label: 'Exhibit Utilization',       v: 71, color: '#00d2d3', disp: '5 / 7', note: 'Strategic deployment timing — solid' },
+  { label: 'Exhibit Utilization',       v: 71, color: '#00d2d3', disp: '5 / 7', note: 'Strategic deployment timing: solid' },
   { label: 'Timeline Coverage',         v: 88, color: '#2ed573', note: '3 key case events not addressed' },
   { label: 'Pressure Point Conversion', v: 64, color: '#ffa502', note: '36% of flagged contradictions passed over' },
 ]
@@ -612,9 +612,9 @@ const CW = [
 ]
 
 const CONFLICTS_DATA = [
-  { a: 'Harmon', b: 'Mills', sev: 'HIGH', topic: 'Server room access — timing conflicts by 47 minutes' },
+  { a: 'Harmon', b: 'Mills', sev: 'HIGH', topic: 'Server room access: timing conflicts by 47 minutes' },
   { a: 'Harmon', b: 'Chen',  sev: 'HIGH', topic: 'Authorization chain for facility entry diverges' },
-  { a: 'Mills',  b: 'Chen',  sev: 'MED',  topic: 'Q4 disclosure — Chen confirms, Mills denies knowledge' },
+  { a: 'Mills',  b: 'Chen',  sev: 'MED',  topic: 'Q4 disclosure: Chen confirms, Mills denies knowledge' },
 ]
 
 function ScoreArc({ v, color, size = 92 }: { v: number; color: string; size?: number }) {
@@ -875,11 +875,11 @@ const PSYCH_STAGES = [
     // chart values: all axes show "concern level" (confidence/consistency inverted)
     chart: [28, 28, 31, 22, 25],
     dims: [
-      { name: 'Defensiveness',         raw: 28, hi: true,  note: 'Cooperative — direct, unqualified responses' },
-      { name: 'Confidence',            raw: 72, hi: false, note: 'Steady delivery — minimal response latency' },
-      { name: 'Deception Indicators',  raw: 31, hi: true,  note: 'Within baseline range — no flags' },
-      { name: 'Narrative Consistency', raw: 78, hi: false, note: 'Tight — story holds across all segments' },
-      { name: 'Pressure Response',     raw: 25, hi: true,  note: 'Stable — no avoidance on direct questions' },
+      { name: 'Defensiveness',         raw: 28, hi: true,  note: 'Cooperative: direct, unqualified responses' },
+      { name: 'Confidence',            raw: 72, hi: false, note: 'Steady delivery: minimal response latency' },
+      { name: 'Deception Indicators',  raw: 31, hi: true,  note: 'Within baseline range: no flags' },
+      { name: 'Narrative Consistency', raw: 78, hi: false, note: 'Tight: story holds across all segments' },
+      { name: 'Pressure Response',     raw: 25, hi: true,  note: 'Stable: no avoidance on direct questions' },
     ],
   },
   {
@@ -888,9 +888,9 @@ const PSYCH_STAGES = [
     color: '#b36fff',
     chart: [51, 52, 58, 38, 44],
     dims: [
-      { name: 'Defensiveness',         raw: 51, hi: true,  note: '↑ Hedging language detected — Qs 7, 11, 14' },
+      { name: 'Defensiveness',         raw: 51, hi: true,  note: '↑ Hedging language detected: Qs 7, 11, 14' },
       { name: 'Confidence',            raw: 48, hi: false, note: '↓ Response latency increasing (+0.8s avg)' },
-      { name: 'Deception Indicators',  raw: 58, hi: true,  note: '⚡ Deviation from baseline — flagging' },
+      { name: 'Deception Indicators',  raw: 58, hi: true,  note: '⚡ Deviation from baseline: flagging' },
       { name: 'Narrative Consistency', raw: 62, hi: false, note: '↓ Minor gaps appearing in 0–30 min account' },
       { name: 'Pressure Response',     raw: 44, hi: true,  note: '↑ Answer quality drops on exhibit challenges' },
     ],
@@ -902,8 +902,8 @@ const PSYCH_STAGES = [
     chart: [74, 69, 82, 61, 71],
     dims: [
       { name: 'Defensiveness',         raw: 74, hi: true,  note: '⚠ 14 qualifiers in last 8 responses' },
-      { name: 'Confidence',            raw: 31, hi: false, note: '⚠ 6 self-corrections — over-explanation pattern' },
-      { name: 'Deception Indicators',  raw: 82, hi: true,  note: '🔴 2.4σ above baseline — strong pattern detected' },
+      { name: 'Confidence',            raw: 31, hi: false, note: '⚠ 6 self-corrections: over-explanation pattern' },
+      { name: 'Deception Indicators',  raw: 82, hi: true,  note: '🔴 2.4σ above baseline: strong pattern detected' },
       { name: 'Narrative Consistency', raw: 39, hi: false, note: '🔴 3 direct contradictions confirmed' },
       { name: 'Pressure Response',     raw: 71, hi: true,  note: '⚠ Sharp degradation on badge log exhibits' },
     ],
@@ -993,7 +993,7 @@ function PsychProfileDemo() {
         {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#222' }}/>)}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           <div style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '3px 18px', fontFamily: 'monospace', fontSize: '0.6rem', color: 'rgba(255,255,255,0.18)' }}>
-            app.ithildin.com/profile/harmon — psychological analysis
+            app.ithildin.com/profile/harmon · psychological analysis
           </div>
         </div>
         {/* Live indicator */}
@@ -1006,7 +1006,7 @@ function PsychProfileDemo() {
       {/* Header bar */}
       <div style={{ padding: '9px 18px', background: '#0b0b0b', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 300, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.04em' }}>
-          Witness Psychological Profile — Robert Harmon
+          Witness Psychological Profile · Robert Harmon
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {PSYCH_STAGES.map((st, i) => (
@@ -1040,7 +1040,7 @@ function PsychProfileDemo() {
                   stroke="rgba(255,255,255,0.07)" strokeWidth={0.8} />
               )
             })}
-            {/* Ghost trail — previous stage */}
+            {/* Ghost trail, previous stage */}
             <polygon points={radarPts(PSYCH_STAGES[Math.max(0, stage - 1)].chart, SIZE).map(([x,y]) => `${x},${y}`).join(' ')}
               fill={`${PSYCH_STAGES[Math.max(0, stage - 1)].color}08`}
               stroke={`${PSYCH_STAGES[Math.max(0, stage - 1)].color}22`}
@@ -1155,8 +1155,11 @@ export default function Product() {
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(3rem, 6vw, 5.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1, marginBottom: 20 }}>
           Watch Ithildin work
         </h1>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+          It isn&rsquo;t a better lawyer across the table. It&rsquo;s a better record.
+        </p>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65 }}>
-          Live transcription, contradiction detection, and follow-up suggestions — as testimony unfolds.
+          Live transcription, contradiction detection, and follow-up suggestions as testimony unfolds.
         </p>
       </section>
 
@@ -1165,7 +1168,7 @@ export default function Product() {
       </section>
 
       {/* ── LIVE: Psych Profile + Heat Map ── */}
-      {/* PsychProfile section hidden — uncomment to restore
+      {/* PsychProfile section hidden. Uncomment to restore
       <section style={{ padding: '60px 52px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
         <div className="reveal" style={{ marginBottom: 52 }}>
           <p className="label" style={{ marginBottom: 18 }}>Behavioral Intelligence</p>
@@ -1173,7 +1176,7 @@ export default function Product() {
             The witness&rsquo;s psychology.<br/>Mapped in real time.
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
-            Ithildin builds a live psychological profile as testimony unfolds — tracking defensiveness, deception patterns, and narrative integrity across every 30-minute interval.
+            Ithildin builds a live psychological profile as testimony unfolds, tracking defensiveness, deception patterns, and narrative integrity across every 30-minute interval.
           </p>
         </div>
       </section>
@@ -1188,6 +1191,9 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             Every line. Color-coded<br/>by risk.
           </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+            Nothing you caught walks out of the room.
+          </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
             A visual transcript where clean testimony is green, inconsistencies are orange, and contradictions glow red. At a glance, see exactly where the deposition got dangerous.
           </p>
@@ -1204,8 +1210,11 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             The entire case story.<br/>One screen.
           </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+            You did the prep. This makes sure none of it is wasted.
+          </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
-            Upload your documents and Ithildin builds the case timeline and evidence map automatically — gaps, conflicts, and all.
+            Upload your documents and Ithildin builds the case timeline and evidence map automatically. Gaps, conflicts, and all.
           </p>
         </div>
       </section>
@@ -1229,8 +1238,11 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
             Every deposition.<br/>Scored. Analyzed. Mapped.
           </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, maxWidth: 520, margin: '0 auto 14px' }}>
+            The gap isn&rsquo;t talent. It&rsquo;s what happens between the transcript and the brief.
+          </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', maxWidth: 500, margin: '0 auto', lineHeight: 1.65 }}>
-            The moment testimony ends, Ithildin builds a complete intelligence report — witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
+            The moment testimony ends, Ithildin builds a complete intelligence report. Witness credibility scored, your strategy graded, and cross-witness conflicts surfaced automatically.
           </p>
         </div>
       </section>
@@ -1244,11 +1256,14 @@ export default function Product() {
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem, 4vw, 3.4rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>
             Four steps.<br/>Complete intelligence.
           </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.95rem', fontWeight: 300, color: 'rgba(255,255,255,0.72)', lineHeight: 1.6, marginTop: 16 }}>
+            Your instincts, with citations.
+          </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', borderTop: '1px solid rgba(255,255,255,0.06)', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
           {[
             { n: '01', title: 'Upload Documents', body: 'Case files, prior testimony, contracts, exhibits. Ithildin ingests and indexes everything automatically.' },
-            { n: '02', title: 'Receive Your Outline', body: 'Structured outline with AI-suggested questions and exhibit references — ready to refine.' },
+            { n: '02', title: 'Receive Your Outline', body: 'Structured outline with AI-suggested questions and exhibit references, ready to refine.' },
             { n: '03', title: 'Depose with Intelligence', body: 'Live transcription and contradiction detection. Flags appear the moment testimony conflicts.' },
             { n: '04', title: 'Review & Impeach', body: 'AI summaries, citations, a draft impeachment brief, and audio/video sync within minutes.' },
           ].map((s, i) => (
@@ -1271,10 +1286,10 @@ export default function Product() {
             Built for firms that can&rsquo;t<br/>afford to miss anything.
           </h2>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 300, color: 'rgba(255,255,255,0.55)', marginBottom: 40 }}>
-            Talk to our team or deploy today.
+            Assume the other side is already running it.
           </p>
-          <Link href="/waitlist" className="btn btn-solid" style={{ padding: '12px 36px' }}>
-            Join Waitlist
+          <Link href="/demo" className="btn btn-solid btn-rect">
+            Book a Demo
           </Link>
         </div>
       </section>

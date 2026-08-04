@@ -2,6 +2,78 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPopup,
+  NavigationMenuPositioner,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu-1'
+
+const RESOURCES: { title: string; href: string; description: string }[] = [
+  { title: 'Careers', href: '/careers', description: 'Open roles and how we hire.' },
+  { title: 'Blog', href: '/blog', description: 'Notes on litigation and the record.' },
+  { title: 'Onboarding', href: '/onboarding', description: 'Get your firm set up on Ithildin.' },
+  { title: 'Help Center', href: '/help-center', description: 'Guides, answers, and support.' },
+  { title: 'Privacy', href: '/privacy', description: 'How we protect your case data.' },
+]
+
+/* Trigger is a bare text link, not a shadcn pill. Overrides strip the
+   default h-9/px-4/text-sm/bg-accent styling so it matches .nav-link. */
+const TRIGGER_OVERRIDES =
+  'nav-link !h-auto !w-auto !rounded-none !px-1 !py-2 -mx-1 -my-2 !text-[0.76rem] !font-light !bg-transparent ' +
+  'hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent'
+
+function ResourcesMenu() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList className="!gap-0">
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className={TRIGGER_OVERRIDES}>Resources</NavigationMenuTrigger>
+          <NavigationMenuContent className="!p-2 xs:!min-w-[300px]">
+            <ul className="grid w-full gap-1 sm:w-[300px]">
+              {RESOURCES.map(item => (
+                <li key={item.title}>
+                  <NavigationMenuLink render={<Link href={item.href} />} className="!gap-1 !p-3">
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '0.8rem',
+                        fontWeight: 400,
+                        color: 'var(--white)',
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {item.title}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '0.7rem',
+                        fontWeight: 300,
+                        color: 'var(--text-dim)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {item.description}
+                    </span>
+                  </NavigationMenuLink>
+                </li>
+              ))}
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+
+      <NavigationMenuPositioner className="z-[200]">
+        <NavigationMenuPopup />
+      </NavigationMenuPositioner>
+    </NavigationMenu>
+  )
+}
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
@@ -37,22 +109,19 @@ export default function Nav() {
 
       {/* Center links */}
       <div className="nav-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 36 }}>
-        {[
-          { label: 'Product', href: '/product' },
-          { label: 'Mission', href: '/mission' },
-          { label: 'Privacy', href: '/privacy' },
-        ].map(item => (
-          <Link key={item.label} href={item.href} className="nav-link">
-            {item.label}
-          </Link>
-        ))}
+        <Link href="/product" className="nav-link">Product</Link>
+        <ResourcesMenu />
+        <Link href="/mission" className="nav-link">Mission</Link>
       </div>
 
-      {/* Right: theme toggle + Login */}
+      {/* Right: theme toggle + Login + Book a Demo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <ThemeToggle />
-        <Link href="/login" className="nav-link">
+        <Link href="/login" className="nav-link nav-link-login">
           Login
+        </Link>
+        <Link href="/demo" className="btn btn-solid nav-demo-cta">
+          Book a Demo
         </Link>
       </div>
     </nav>

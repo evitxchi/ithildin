@@ -19,7 +19,7 @@ export const LampContainer = ({
       style={{ background: '#050505' }}
     >
       <div className="relative flex w-full flex-1 scale-y-125 items-center justify-center isolate z-0">
-        {/* Left cone — gold */}
+        {/* Left cone, gold */}
         <motion.div
           initial={{ opacity: 0.5, width: "15rem" }}
           whileInView={{ opacity: 1, width: "30rem" }}
@@ -31,7 +31,7 @@ export const LampContainer = ({
           <div className="absolute w-40 h-[100%] left-0 bottom-0 z-20 [mask-image:linear-gradient(to_right,white,transparent)]" style={{ background: '#050505' }} />
         </motion.div>
 
-        {/* Right cone — gold */}
+        {/* Right cone, gold */}
         <motion.div
           initial={{ opacity: 0.5, width: "15rem" }}
           whileInView={{ opacity: 1, width: "30rem" }}

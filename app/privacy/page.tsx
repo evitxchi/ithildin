@@ -42,21 +42,6 @@ function useReveal() {
 
 const STANDARDS = [
   {
-    label: 'SOC 2 Type II',
-    heading: 'Audited annually by an independent third party.',
-    body: [
-      'Ithildin undergoes annual SOC 2 Type II audits covering the Trust Services Criteria for Security, Availability, and Confidentiality. Unlike a Type I audit, Type II validates that our controls operate effectively over time — not just on paper.',
-      'Controls assessed include: logical access management, encryption at rest and in transit, incident response procedures, change management, and continuous monitoring. Audit reports are available to enterprise clients under NDA.',
-    ],
-    details: [
-      'AES-256 encryption at rest',
-      'TLS 1.3 for all data in transit',
-      'Role-based access control with least-privilege enforcement',
-      'Automated vulnerability scanning and penetration testing',
-      'Incident response SLA: notification within 24 hours',
-    ],
-  },
-  {
     label: 'GDPR',
     heading: 'Full compliance with EU data protection law.',
     body: [
@@ -66,7 +51,7 @@ const STANDARDS = [
     details: [
       'Data Processing Agreements available on request',
       'Right to access, rectification, and erasure honored within 30 days',
-      'Data minimization — we collect only what is necessary',
+      'Data minimization: we collect only what is necessary',
       'EU data residency options available for enterprise clients',
       'Breach notification to supervisory authority within 72 hours',
       'We do not sell or share personal data with third parties',
@@ -90,7 +75,7 @@ const STANDARDS = [
     label: 'ISO 27001',
     heading: 'International standard for information security management.',
     body: [
-      'Our information security management system (ISMS) is aligned with ISO/IEC 27001:2022, the international standard for managing information security risk. This means security is embedded in how we build, operate, and improve Ithildin — not bolted on after the fact.',
+      'Our information security management system (ISMS) is aligned with ISO/IEC 27001:2022, the international standard for managing information security risk. This means security is embedded in how we build, operate, and improve Ithildin. Not bolted on after the fact.',
     ],
     details: [
       'Formal risk assessment and treatment process',
@@ -104,7 +89,6 @@ const STANDARDS = [
 ]
 
 const LABEL_TO_ID: Record<string, string> = {
-  'SOC 2 Type II': 'soc2',
   'GDPR': 'gdpr',
   'CCPA': 'ccpa',
   'ISO 27001': 'iso27001',
@@ -132,7 +116,7 @@ export default function Privacy() {
           fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 300,
           color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: 520,
         }}>
-          Ithildin is built for the legal industry — where confidentiality is non-negotiable. Every system, control, and audit exists to protect your clients' most sensitive information.
+          Ithildin is built for the legal industry, where confidentiality is non-negotiable. Every system, control, and audit exists to protect your clients' most sensitive information.
         </p>
       </section>
 
@@ -149,7 +133,7 @@ export default function Privacy() {
             fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
             fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em',
             lineHeight: 1.05,
-          }}>Four frameworks. One commitment.</h2>
+          }}>Three frameworks. One commitment.</h2>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>

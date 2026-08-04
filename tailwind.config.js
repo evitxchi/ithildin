@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+      },
       colors: {
         background: 'var(--bg)',
         card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
@@ -15,6 +18,11 @@ module.exports = {
         border: 'var(--border)',
         muted: { DEFAULT: 'var(--bg-elevated)', foreground: 'var(--text-dim)' },
         primary: { 600: 'var(--accent)', 500: 'var(--accent)' },
+        /* Interactive surface tokens. Deliberately NOT --accent (the gold),
+           which is a text/stroke colour, not a hover background. */
+        accent: { DEFAULT: 'var(--surface-accent)', foreground: 'var(--surface-accent-foreground)' },
+        popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
+        ring: 'var(--ring)',
       },
     },
   },

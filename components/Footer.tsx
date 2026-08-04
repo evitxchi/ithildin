@@ -1,116 +1,7 @@
 'use client'
-import { useEffect, useState, useRef, useCallback, Fragment } from 'react'
 import Link from 'next/link'
 
-function BinaryLogo() {
-  const [chars, setChars] = useState<Array<{ ch: string; k: number }>>([])
-  const lastEl = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    const cols = 120, rows = 20, cellW = 10, cellH = 15
-    const canvas = document.createElement('canvas')
-    canvas.width = cols * cellW
-    canvas.height = rows * cellH
-    const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = '#000'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#fff'
-    ctx.textBaseline = 'middle'
-    ctx.textAlign = 'center'
-    let fontSize = Math.floor(rows * cellH * 0.84)
-    ctx.font = `bold ${fontSize}px Arial`
-    const measured = ctx.measureText('ITHILDIN').width
-    if (measured > canvas.width * 0.94) {
-      fontSize = Math.floor(fontSize * (canvas.width * 0.94) / measured)
-      ctx.font = `bold ${fontSize}px Arial`
-    }
-    ctx.fillText('ITHILDIN', canvas.width / 2, canvas.height / 2)
-    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
-    const flat: Array<{ ch: string; k: number }> = []
-    let k = 0
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const px = Math.floor(c * cellW + cellW / 2)
-        const py = Math.floor(r * cellH + cellH / 2)
-        const bright = data[(py * canvas.width + px) * 4]
-        let ch: string
-        if (bright > 80) {
-          ch = Math.random() > 0.5 ? '1' : '0'
-        } else if (Math.random() < 0.08) {
-          ch = Math.random() > 0.5 ? '1' : '0'
-        } else {
-          ch = '\u00a0'
-        }
-        flat.push({ ch, k: k++ })
-      }
-      flat.push({ ch: '\n', k: k++ })
-    }
-    setChars(flat)
-  }, [])
-
-  const onEnter = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
-    if (lastEl.current) {
-      lastEl.current.style.textShadow = 'none'
-      lastEl.current.style.color = ''
-    }
-    const el = e.currentTarget
-    const isLight = document.documentElement.dataset.theme === 'light'
-    el.style.textShadow = isLight
-      ? '0 0 2px #000, 0 0 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)'
-      : '0 0 2px #fff, 0 0 8px #fff, 0 0 20px #fff, 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.7), 0 0 200px rgba(255,255,255,0.4)'
-    el.style.color = isLight ? '#000' : '#fff'
-    lastEl.current = el
-  }, [])
-
-  const onLeave = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
-    const el = e.currentTarget
-    el.style.textShadow = 'none'
-    el.style.color = ''
-    if (lastEl.current === el) lastEl.current = null
-  }, [])
-
-  if (chars.length === 0) return null
-
-  return (
-    <div className="binary-logo" style={{ display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
-      <pre className="binary-logo-text" style={{
-        fontFamily: '"Courier New", Courier, monospace',
-        fontSize: '0.72rem',
-        lineHeight: 1.4,
-        color: 'var(--binary-logo-color)',
-        letterSpacing: '0.04em',
-        whiteSpace: 'pre',
-        userSelect: 'none',
-        padding: '60px 0 52px',
-      }}>
-        {chars.map(({ ch, k }) => {
-          if (ch !== '0' && ch !== '1') return <Fragment key={k}>{ch}</Fragment>
-          return (
-            <span key={k} onMouseEnter={onEnter} onMouseLeave={onLeave}
-              style={{ transition: 'text-shadow 0.04s ease, color 0.04s ease' }}>
-              {ch}
-            </span>
-          )
-        })}
-      </pre>
-    </div>
-  )
-}
-
 const BADGES = [
-  {
-    name: 'SOC 2 II',
-    href: 'https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2',
-    icon: (
-      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-        <path d="M17 3 L30 9 V20 C30 28 24 33 17 35 C10 33 4 28 4 20 V9 Z"
-          stroke="rgba(130,130,130,0.4)" strokeWidth="1" fill="none"/>
-        <path d="M11 17 L15 21 L23 13"
-          stroke="rgba(130,130,130,0.45)" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    )
-  },
   {
     name: 'CCPA',
     href: 'https://oag.ca.gov/privacy/ccpa',
@@ -145,7 +36,7 @@ const BADGES = [
   },
   {
     name: 'GDPR',
-    href: 'https://www.iso.org/standard/27001',
+    href: 'https://gdpr.eu/',
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
         <circle cx="17" cy="17" r="12" stroke="rgba(130,130,130,0.4)" strokeWidth="1" fill="none"/>
@@ -162,6 +53,24 @@ const BADGES = [
   },
 ]
 
+const COLUMNS = [
+  { title: 'Product', links: [
+    { label: 'Features', href: '/product' },
+    { label: 'Security', href: '/privacy' },
+  ]},
+  { title: 'Company', links: [
+    { label: 'About', href: '/mission' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Careers', href: '/careers' },
+    { label: 'Contact', href: '/demo' },
+  ]},
+  { title: 'Legal', links: [
+    { label: 'Privacy', href: '/privacy' },
+    { label: 'Terms', href: '#' },
+    { label: 'DPA', href: '#' },
+  ]},
+]
+
 export default function Footer() {
   return (
     <footer style={{
@@ -169,24 +78,15 @@ export default function Footer() {
       padding: '80px 52px 48px',
       background: 'var(--bg)',
     }}>
-      {/* Compliance badge carousel */}
+      {/* Compliance badges */}
       <div style={{
-        overflow: 'hidden',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         margin: '0 0 80px',
-        position: 'relative',
       }}>
-        {/* fade edges */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to right, var(--bg), transparent)', zIndex: 2, pointerEvents: 'none' }}/>
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to left, var(--bg), transparent)', zIndex: 2, pointerEvents: 'none' }}/>
-        <div style={{
-          display: 'flex',
-          animation: 'badgeScroll 18s linear infinite',
-          width: 'max-content',
-        }}>
-          {[...BADGES, ...BADGES, ...BADGES].map((b, i) => (
-            <a key={i} href={b.href} target="_blank" rel="noopener noreferrer" style={{
+        <div className="footer-badges" style={{ display: 'flex', justifyContent: 'center' }}>
+          {BADGES.map(b => (
+            <a key={b.name} href={b.href} target="_blank" rel="noopener noreferrer" style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -199,8 +99,8 @@ export default function Footer() {
               textDecoration: 'none',
               flexShrink: 0,
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#101010'; (e.currentTarget.parentElement as HTMLElement).style.animationPlayState = 'paused' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'; (e.currentTarget.parentElement as HTMLElement).style.animationPlayState = 'running' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
             >
               {b.icon}
               <span style={{
@@ -222,8 +122,6 @@ export default function Footer() {
           ))}
         </div>
       </div>
-
-      <BinaryLogo />
 
       {/* Links */}
       <div className="footer-links" style={{
@@ -253,16 +151,12 @@ export default function Footer() {
             AI deposition intelligence for legal professionals.
           </p>
         </div>
-        {[
-          { title: 'Product', links: ['Features', 'Pricing', 'Security', 'Integrations'] },
-          { title: 'Company', links: ['About', 'Blog', 'Careers', 'Contact'] },
-          { title: 'Legal',   links: ['Privacy', 'Terms', 'DPA'] },
-        ].map(col => (
+        {COLUMNS.map(col => (
           <div key={col.title}>
             <p className="label" style={{ marginBottom: 16 }}>{col.title}</p>
             {col.links.map(l => (
-              <div key={l} style={{ marginBottom: 10 }}>
-                <a href="#" style={{
+              <div key={l.label} style={{ marginBottom: 10 }}>
+                <Link href={l.href} style={{
                   fontFamily: 'var(--font-sans)',
                   fontSize: '0.8rem',
                   fontWeight: 300,
@@ -272,7 +166,7 @@ export default function Footer() {
                 }}
                   onMouseEnter={e => (e.target as HTMLElement).style.color = 'rgba(200,200,200,0.7)'}
                   onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(80,80,80,0.8)'}
-                >{l}</a>
+                >{l.label}</Link>
               </div>
             ))}
           </div>
@@ -280,7 +174,7 @@ export default function Footer() {
       </div>
 
       <div className="line" style={{ maxWidth: 1100, margin: '0 auto 28px' }}/>
-      <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 1100, margin: '0 auto' }}>
+      <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 1100, margin: '0 auto' }}>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 300, color: 'rgba(60,60,60,0.8)' }}>
           © {new Date().getFullYear()} Ithildin, Inc.
         </p>
