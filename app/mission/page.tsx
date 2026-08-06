@@ -1,5 +1,4 @@
 'use client'
-import { motion } from 'framer-motion'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
@@ -15,23 +14,19 @@ export default function Mission() {
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         borderBottom: '1px solid var(--border)',
       }}>
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          style={{
-            fontFamily: 'var(--font-serif)',
-            fontSize: 'clamp(2.6rem, 6.4vw, 5rem)',
-            fontWeight: 400,
-            lineHeight: 1.05,
-            letterSpacing: '-0.025em',
-            textAlign: 'center',
-            color: 'var(--white)',
-          }}
-        >
+        {/* Plain heading. A whileInView tween here could leave the page title
+            stuck part-way faded, and nothing else on this page animates. */}
+        <h1 style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: 'clamp(2.6rem, 6.4vw, 5rem)',
+          fontWeight: 400,
+          lineHeight: 1.05,
+          letterSpacing: '-0.025em',
+          textAlign: 'center',
+          color: 'var(--white)',
+        }}>
           Ithildin<br />Mission Statement
-        </motion.h1>
+        </h1>
       </section>
 
       {/* Mission text */}
@@ -71,7 +66,7 @@ export default function Mission() {
           that proves it can be done responsibly.
         </p>
 
-        {/* Revenue commitment pull quote, no em dash */}
+        {/* Ethics pull quote */}
         <blockquote style={{
           margin: '0 0 64px',
           padding: '2px 0 2px 32px',
@@ -85,18 +80,18 @@ export default function Mission() {
             color: 'var(--text-muted)',
             letterSpacing: '0.005em',
           }}>
-            From day one, we've committed{' '}
+            We are open about where we stand. Ethics, human oversight, and giving back to the
+            profession are{' '}
             <span style={{
               fontFamily: 'var(--font-serif)',
               fontSize: '1.18em',
               fontWeight: 400,
               color: 'var(--accent)',
               letterSpacing: '-0.01em',
-            }}>a percentage of our revenue</span>
-            {' '}back to improving the legal system as a whole, funding legal aid,
-            expanding access to justice, and supporting the institutions that keep law equitable,
-            because we see that not as charity, but as the clearest signal of what we actually
-            stand for.
+            }}>stated up front</span>
+            {' '}rather than buried in a policy page. Widening access to justice and supporting the
+            institutions that keep law equitable are part of how we work, because how we practice is
+            the clearest signal of what we actually stand for.
           </p>
         </blockquote>
 
