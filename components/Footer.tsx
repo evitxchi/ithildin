@@ -179,7 +179,7 @@ export default function Footer() {
           © {new Date().getFullYear()} Ithildin, Inc.
         </p>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 300, color: 'rgba(60,60,60,0.8)' }}>
-          Built for legal professionals
+          Built for legal professionals.
         </p>
       </div>
     </footer>
