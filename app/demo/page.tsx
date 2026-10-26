@@ -3,13 +3,8 @@ import { useState } from 'react'
 import Nav from '@/components/Nav'
 import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
-
-const VOLUMES = [
-  'Fewer than 5 depositions a month',
-  '5 to 15 depositions a month',
-  '15 to 40 depositions a month',
-  'More than 40 depositions a month',
-]
+import { supabase } from '@/lib/supabase'
+import { VOLUMES } from './volumes'
 
 export default function DemoPage() {
   const [name, setName] = useState('')
@@ -18,15 +13,25 @@ export default function DemoPage() {
   const [volume, setVolume] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name || !firm || !email) return
+    if (!name.trim() || !firm.trim() || !email.trim()) return
+    setError('')
     setLoading(true)
-    // TODO: wire to Supabase
-    await new Promise(r => setTimeout(r, 600))
-    setSubmitted(true)
+    const { error } = await supabase.from('demo_requests').insert({
+      name: name.trim(),
+      firm: firm.trim(),
+      email: email.trim().toLowerCase(),
+      volume: volume || null,
+    })
     setLoading(false)
+    if (error) {
+      setError('Something went wrong. Please try again in a moment.')
+      return
+    }
+    setSubmitted(true)
   }
 
   return (
@@ -135,6 +140,15 @@ export default function DemoPage() {
                   }}
                 />
               </div>
+
+              {error && (
+                <p style={{
+                  fontFamily: 'var(--font-sans)', fontSize: '0.75rem', fontWeight: 300,
+                  color: 'rgba(192,57,43,0.9)', marginTop: 2,
+                }}>
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"
